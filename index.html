@@ -1069,7 +1069,7 @@ async function updateBetaCallout(){
   const board=await sbBoard(todayKey()) || getLS('ctb_lb_'+todayKey(),[]);
   if(!board||!board.length){
     el.innerHTML='<strong>Post your score</strong> to claim your spot on the leaderboard. First 20 with most points win HyperForge Beta.';
-    if(BETA_TEST_MODE&&!getLS('ctb_beta_submitted',false)){
+    if(BETA_TEST_MODE){
       document.getElementById('win-score-val').textContent=sessionPts;
       setTimeout(()=>document.getElementById('win-modal').classList.add('show'),600);
     }
@@ -1269,6 +1269,7 @@ function init(){
   // ?test=end  →  jump straight to results screen with dummy data
   if(new URLSearchParams(window.location.search).get('test')==='end'){
     sessionPts=750; correctCount=4; qResults=['ok','ok','wrong','ok','ok']; scoreSaved=false;
+    localStorage.removeItem('ctb_beta_submitted'); // always show modal in test mode
     dailyTrades=getDailyTrades();
     document.getElementById('p-num').textContent='#TEST';
     document.getElementById('p-date').textContent='Test';
