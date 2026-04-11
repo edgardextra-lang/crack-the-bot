@@ -1178,6 +1178,17 @@ window.addEventListener('scroll',()=>{
 // INIT
 // ─────────────────────────────────────────────────────────────────
 function init(){
+  // ?test=end  →  jump straight to results screen with dummy data
+  if(new URLSearchParams(window.location.search).get('test')==='end'){
+    sessionPts=750; correctCount=4; qResults=['ok','ok','wrong','ok','ok']; scoreSaved=false;
+    dailyTrades=getDailyTrades();
+    document.getElementById('p-num').textContent='#TEST';
+    document.getElementById('p-date').textContent='Test';
+    renderStreakBadge(); fetchStats();
+    showResults(true);
+    return;
+  }
+
   // Check if sprint is over
   if(Date.now()>END_DATE){
     document.getElementById('game-screen').style.display='none';
