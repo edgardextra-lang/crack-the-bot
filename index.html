@@ -93,6 +93,30 @@ input,textarea { font:inherit; }
 .page { position:relative;z-index:1;max-width:760px;margin:0 auto;padding:88px 20px 60px; }
 
 /* ── Beta sprint banner ── */
+/* ── Game intro block ── */
+.game-intro-block { text-align:center;margin-bottom:18px; }
+.game-intro-purpose { font-size:13px;color:var(--text2);line-height:1.6;margin:0 0 10px; }
+.game-intro-rules { display:flex;flex-wrap:wrap;justify-content:center;gap:6px; }
+.rule-pill { font-size:11px;color:var(--text3);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:3px 10px;white-space:nowrap; }
+
+/* ── HyperForge tooltip ── */
+.hf-tooltip-wrap { position:relative;display:inline-block;cursor:default; }
+.hf-tooltip-wrap > span:first-child { color:var(--indigo);border-bottom:1px dashed rgba(99,102,241,.4); }
+.hf-tooltip {
+  display:none;
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  width:260px;background:var(--card);border:1px solid var(--border);
+  border-radius:8px;padding:10px 12px;
+  font-size:12px;color:var(--text2);line-height:1.5;font-weight:400;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:100;pointer-events:none;
+  white-space:normal;text-align:left;
+}
+.hf-tooltip::after {
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--border);
+}
+.hf-tooltip-wrap:hover .hf-tooltip { display:block; }
+
 .sprint-banner {
   background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(34,211,238,.08));
   border:1px solid rgba(99,102,241,.3);
@@ -556,17 +580,27 @@ input,textarea { font:inherit; }
 
 <div class="page">
 
-  <!-- Tagline -->
-  <p style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:16px;line-height:1.5;">
-    <strong style="color:var(--text1)">HyperForge</strong> turns your trading idea into a live, backtested, risk-managed Hyperliquid bot — without writing a single line of code.
-  </p>
+  <!-- Purpose + Rules -->
+  <div class="game-intro-block">
+    <p class="game-intro-purpose">Prove you think like an algorithm. Each day, 5 intercepted signals from a live trading bot — read the setup, crack the logic, earn points.</p>
+    <div class="game-intro-rules">
+      <span class="rule-pill">📡 5 signals · new puzzle every 24h</span>
+      <span class="rule-pill">⏱ 60 sec per signal</span>
+      <span class="rule-pill">⚡ Speed bonus for fast answers</span>
+      <span class="rule-pill">🔥 Streaks unlock score multipliers</span>
+    </div>
+  </div>
 
   <!-- Beta sprint banner -->
   <div class="sprint-banner">
     <div class="sprint-left">
       <div class="sprint-trophy">🏆</div>
       <div class="sprint-text">
-        First <span>20 players</span> with the most points win early access to <span>HyperForge Beta</span>
+        First <span>20 players</span> with the most points win early access to
+        <span class="hf-tooltip-wrap">
+          <span>HyperForge Beta</span>
+          <span class="hf-tooltip">HyperForge turns your trading idea into a live, backtested, risk-managed Hyperliquid bot — without writing a single line of code.</span>
+        </span>
       </div>
     </div>
     <div class="sprint-right">
