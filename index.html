@@ -121,7 +121,7 @@ input,textarea { font:inherit; }
 .hf-tooltip-wrap > span:first-child { color:var(--indigo);border-bottom:1px dashed rgba(99,102,241,.4); }
 .hf-tooltip {
   display:none;
-  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
   width:260px;background:var(--card);border:1px solid var(--border);
   border-radius:8px;padding:10px 12px;
   font-size:12px;color:var(--text2);line-height:1.5;font-weight:400;
@@ -129,8 +129,8 @@ input,textarea { font:inherit; }
   white-space:normal;text-align:left;
 }
 .hf-tooltip::after {
-  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
-  border:5px solid transparent;border-top-color:var(--border);
+  content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-bottom-color:var(--border);
 }
 .hf-tooltip-wrap:hover .hf-tooltip { display:block; }
 
@@ -191,8 +191,9 @@ input,textarea { font:inherit; }
 .q-counter   { font-family:var(--mono);font-size:11px;color:var(--text3); }
 
 /* Timer bar */
-.timer-track { height:2px;background:var(--border); }
-.timer-fill  { height:100%;background:var(--grad-indigo);width:100%;transition:width linear; }
+.timer-track { height:5px;background:var(--border); }
+.timer-fill  { height:100%;background:var(--green);width:100%;transition:width linear,background .5s; }
+.timer-fill.warn   { background:var(--amber); }
 .timer-fill.urgent { background:linear-gradient(90deg,#ef4444,#fb7185); }
 
 /* Card body */
@@ -216,20 +217,40 @@ input,textarea { font:inherit; }
 .clue-n    { position:absolute;top:8px;right:10px;font-family:var(--mono);font-size:16px;font-weight:700;color:var(--border-light); }
 .clue-lock { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;opacity:.4; }
 
+/* Mission header */
+.mission-header {
+  font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:#fff;text-align:center;margin-bottom:14px;opacity:.85;
+}
+
 /* Signal box */
 .signal-box {
   background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
-  padding:18px 20px;margin-bottom:18px;position:relative;
+  padding:20px 20px 16px;margin-bottom:16px;position:relative;
+  border-left:3px solid var(--indigo);
 }
+.signal-box.tag-crowd  { border-left-color:var(--amber); }
+.signal-box.tag-rule   { border-left-color:var(--indigo); }
+.signal-box.tag-disc   { border-left-color:#22d3ee; }
+.signal-box.tag-break  { border-left-color:var(--green); }
+.signal-box.tag-market { border-left-color:#a78bfa; }
+.signal-box.tag-cost   { border-left-color:#fb7185; }
 .signal-tag {
-  position:absolute;top:-9px;left:14px;
-  background:var(--grad-indigo);color:#fff;
+  display:inline-block;margin-bottom:10px;
   font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;
-  padding:2px 10px;border-radius:4px;
+  padding:2px 8px;border-radius:4px;
+  background:rgba(99,102,241,.15);color:var(--indigo);border:1px solid rgba(99,102,241,.3);
 }
-.signal-time { font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.5px;margin-bottom:8px; }
-.signal-story { font-size:13px;color:var(--text2);line-height:1.7; }
+.signal-box.tag-crowd .signal-tag  { background:rgba(245,158,11,.12);color:var(--amber);border-color:rgba(245,158,11,.3); }
+.signal-box.tag-rule .signal-tag   { background:rgba(99,102,241,.12);color:var(--indigo);border-color:rgba(99,102,241,.3); }
+.signal-box.tag-disc .signal-tag   { background:rgba(34,211,238,.1);color:#22d3ee;border-color:rgba(34,211,238,.25); }
+.signal-box.tag-break .signal-tag  { background:rgba(16,185,129,.1);color:var(--green);border-color:rgba(16,185,129,.25); }
+.signal-box.tag-market .signal-tag { background:rgba(167,139,250,.1);color:#a78bfa;border-color:rgba(167,139,250,.25); }
+.signal-box.tag-cost .signal-tag   { background:rgba(251,113,133,.1);color:#fb7185;border-color:rgba(251,113,133,.25); }
+.signal-time { font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.5px;margin-bottom:10px; }
+.signal-story { font-size:14px;color:var(--text1);line-height:1.75; }
 .signal-stats { display:flex;gap:20px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap; }
+.signal-coin  { margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:1px; }
 .ss-item { text-align:center; }
 .ss-val   { font-family:var(--mono);font-size:16px;font-weight:700;color:var(--amber); }
 .ss-label { font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);display:block;margin-top:2px; }
@@ -252,21 +273,25 @@ input,textarea { font:inherit; }
   border-radius:var(--r);padding:14px 16px;margin-bottom:12px;
   border-left:3px solid var(--indigo);
 }
-.q-label { font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--indigo);margin-bottom:6px; }
+.q-line  { display:flex;align-items:baseline;gap:8px; }
+.q-icon  { font-size:16px;flex-shrink:0;line-height:1; }
 .q-text  { font-size:14px;font-weight:600;color:var(--text1);line-height:1.5; }
 
 /* Answers */
-.answers { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px; }
+.answers { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px; }
 .ans-btn {
-  background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r);
-  padding:12px 14px;font-size:12px;color:var(--text2);
-  cursor:pointer;text-align:left;transition:all .15s;line-height:1.4;
+  background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);border-radius:var(--r);
+  padding:14px 16px;font-size:13px;color:#fff;font-weight:500;
+  cursor:pointer;text-align:left;transition:all .15s;line-height:1.45;
 }
-.ans-btn:hover:not(:disabled) { border-color:var(--border-light);background:var(--card);color:var(--text1); }
-.ans-btn.correct { background:var(--green-bg);border-color:var(--green-dim);color:var(--green); }
+.ans-btn:hover:not(:disabled) {
+  border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.09);
+  transform:translateY(-1px);
+}
+.ans-btn.correct { background:rgba(16,185,129,.18);border-color:var(--green);color:var(--green);font-weight:600; }
 .ans-btn.wrong   { background:var(--red-bg);border-color:var(--red);color:var(--red); }
-.ans-btn.reveal  { background:var(--green-bg);border-color:var(--green-dim); }
-.ans-btn:disabled { cursor:default; }
+.ans-btn.reveal  { background:rgba(16,185,129,.1);border-color:var(--green-dim);color:var(--text2); }
+.ans-btn:disabled { cursor:default;transform:none; }
 
 /* Feedback */
 .feedback { display:none;font-size:12px;padding:11px 14px;border-radius:var(--r);margin-bottom:14px;line-height:1.55; }
@@ -411,7 +436,9 @@ input,textarea { font:inherit; }
 .r-btn.lb-btn:hover { opacity:.88;transform:translateY(-1px); }
 
 /* ── Social Share ── */
-.social-share { padding:0 24px 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+.social-share { padding:0 24px 8px;display:flex;flex-direction:column;gap:8px; }
+.social-share-hint { font-size:11px;color:#fff;opacity:.65;font-family:var(--mono);letter-spacing:.5px; }
+.social-btns { display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
 .social-label { font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-right:4px; }
 .social-btn {
   display:inline-flex;align-items:center;justify-content:center;gap:7px;
@@ -548,9 +575,9 @@ input,textarea { font:inherit; }
 <div class="modal-overlay" id="timeout-modal">
   <div class="modal-card">
     <div class="modal-icon">⏱</div>
-    <div class="modal-title">Signal Expired</div>
-    <div class="modal-text">Too slow, detective.<br>You had 60 seconds to read the signal.<br>The window has closed.</div>
-    <button class="modal-retry" onclick="retryQuestion()">Retry Signal →</button>
+    <div class="modal-title">Question Expired</div>
+    <div class="modal-text">Too slow, detective.<br>You had 60 seconds to answer the question.<br>The window has closed.</div>
+    <button class="modal-retry" onclick="retryQuestion()">Retry Question →</button>
   </div>
 </div>
 
@@ -594,23 +621,12 @@ input,textarea { font:inherit; }
     <div class="nav-right">
       <!-- VT_WALLET_SLOT -->
       <span id="nav-detective" class="nav-detective" style="display:none">DET: <em id="nav-det-name"></em></span>
-      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+      <a href="leaderboard.html" class="nav-link" onclick="window.umami&&umami.track('leaderboard_clicked',{source:'nav'})">Leaderboard</a>
     </div>
   </div>
 </nav>
 
 <div class="page">
-
-  <!-- Purpose + Rules -->
-  <div class="game-intro-block">
-    <p class="game-intro-purpose">Prove you think like an algorithm. Each day, 5 intercepted signals from a live trading bot — read the setup, crack the logic, earn points.</p>
-    <div class="game-intro-rules">
-      <span class="rule-pill">📡 5 signals · new puzzle every 24h</span>
-      <span class="rule-pill">⏱ 60 sec per signal</span>
-      <span class="rule-pill">⚡ Speed bonus for fast answers</span>
-      <span class="rule-pill">🔥 Streaks unlock score multipliers</span>
-    </div>
-  </div>
 
   <!-- Beta sprint banner -->
   <div class="sprint-banner">
@@ -662,17 +678,15 @@ input,textarea { font:inherit; }
     <div id="game-screen">
       <div class="card-body">
 
-        <!-- Clues -->
-        <span class="slabel">Evidence collected</span>
-        <div class="clues-grid" id="clues-grid"></div>
+        <!-- Mission header -->
+        <div class="mission-header">Read the market description → Pick one answer → 60 sec</div>
 
         <!-- Signal -->
         <div class="signal-box" id="signal-box"></div>
 
         <!-- Question -->
         <div class="q-box">
-          <div class="q-label">🔍 Your prediction</div>
-          <div class="q-text" id="q-text"></div>
+          <div class="q-line"><span class="q-icon">🎯</span><div class="q-text" id="q-text"></div></div>
         </div>
 
         <!-- Answers -->
@@ -682,7 +696,7 @@ input,textarea { font:inherit; }
         <div class="feedback" id="feedback"></div>
 
         <!-- Next -->
-        <button class="next-btn" id="next-btn" disabled onclick="nextQuestion()">Next Signal →</button>
+        <button class="next-btn" id="next-btn" disabled onclick="nextQuestion();window.umami&&umami.track('next_signal_clicked',{q:qIndex})">Next Question →</button>
       </div>
     </div>
 
@@ -698,6 +712,41 @@ input,textarea { font:inherit; }
           <div class="result-title" id="r-title">You figured it out.</div>
           <div class="result-copy" id="r-copy"></div>
           <div class="score-tiles" id="score-tiles"></div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-wrap">
+        <span class="slabel" style="color:#fff">Save your score</span>
+        <div class="submit-row">
+          <input class="callsign-input" id="callsign" maxlength="10" placeholder="Enter your name (eg: Lili_21)" />
+          <button class="submit-btn" id="submit-btn" onclick="submitScore()">Save score →</button>
+        </div>
+      </div>
+
+      <!-- Social Share -->
+      <div class="social-share">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+          <span class="social-label">Share</span>
+          <span class="social-share-hint">+10 pts per share · max 40/day</span>
+        </div>
+        <div class="social-btns">
+        <button class="social-btn x-btn" onclick="shareTo('x')" title="Share on X">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X / Twitter
+        </button>
+        <button class="social-btn fb-btn" onclick="shareTo('fb')" title="Share on Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+        <button class="social-btn ig-btn" onclick="shareTo('ig')" title="Copy for Instagram">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          Instagram
+        </button>
+        <button class="social-btn tt-btn" onclick="shareTo('tt')" title="Copy for TikTok">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.09a8.16 8.16 0 004.77 1.52V7.15a4.85 4.85 0 01-1-.46z"/></svg>
+          TikTok
+        </button>
         </div>
       </div>
 
@@ -722,39 +771,9 @@ input,textarea { font:inherit; }
         <div id="lb-content"></div>
       </div>
 
-      <!-- Submit -->
-      <div class="submit-wrap">
-        <span class="slabel">Save your score</span>
-        <div class="submit-row">
-          <input class="callsign-input" id="callsign" maxlength="10" placeholder="Enter call sign (e.g. GHOST_7)" />
-          <button class="submit-btn" id="submit-btn" onclick="submitScore()">Post Score</button>
-        </div>
-      </div>
-
-      <!-- Social Share -->
-      <div class="social-share">
-        <span class="social-label">Share</span>
-        <button class="social-btn x-btn" onclick="shareTo('x')" title="Share on X">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          X / Twitter
-        </button>
-        <button class="social-btn fb-btn" onclick="shareTo('fb')" title="Share on Facebook">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-          Facebook
-        </button>
-        <button class="social-btn ig-btn" onclick="shareTo('ig')" title="Copy for Instagram">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-          Instagram
-        </button>
-        <button class="social-btn tt-btn" onclick="shareTo('tt')" title="Copy for TikTok">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.09a8.16 8.16 0 004.77 1.52V7.15a4.85 4.85 0 01-1-.46z"/></svg>
-          TikTok
-        </button>
-      </div>
-
       <!-- Actions -->
       <div class="result-actions">
-        <a href="leaderboard.html" class="r-btn lb-btn">Full Leaderboard →</a>
+        <a href="leaderboard.html" class="r-btn lb-btn" onclick="window.umami&&umami.track('leaderboard_clicked',{source:'results'})">Full Leaderboard →</a>
       </div>
     </div>
 
@@ -798,6 +817,7 @@ const EJS_ON = EJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY';
 // Set false in production — true only for testing via ?test=end
 const BETA_TEST_MODE = false;
 
+const SHARE_BONUS = 10; // pts per platform, max 4 platforms = +40
 const STATS_API  = 'stats.json';
 const LAUNCH     = new Date('2026-04-11T00:00:00Z');
 const END_DATE   = new Date('2026-05-11T00:00:00Z');
@@ -824,30 +844,30 @@ const ALL_CLUES = [
 // TRADE POOL (12 scenarios — 5 drawn by date seed)
 // ─────────────────────────────────────────────────────────────────
 const POOL = [
-  { time:"Tuesday · Open Interest Report · ETH-PERP", story:"Open interest on ETH perpetuals has been climbing for 3 hours straight. Price has barely moved — flat within a 0.4% range. The positions are piling up, but the market isn't going anywhere yet. Then the bot fires.", details:{result:"+$420",held:"1h 12min",coin:"ETH"}, question:"What side did the bot take?", answers:["Long — OI rising means buyers are in control","It faded the crowded side — whoever was trapped had to unwind","It waited for price to break before entering","Short — rising OI always precedes a drop"], correct:1, feedback:{ ok:"✓ The bot doesn't predict direction — it hunts trapped positioning. OI rising while price stalls means someone is going to get squeezed. It fades the crowded side.", bad:"✗ Rising OI + flat price isn't a directional signal on its own. It means pressure is building. The bot's edge is identifying who's trapped — and fading them." }},
-  { time:"Wednesday · Positioning Snapshot · BTC-PERP", story:"Data shows an extreme imbalance: the overwhelming majority of open BTC positions are long. The funding rate has been elevated for 6 hours. Price is consolidating just below a key level. The bot has been watching quietly.", details:{result:"?",held:"?",coin:"BTC"}, question:"What does the bot do?", answers:["Goes long — the crowd must be right","Passes — no divergence between OI and price","Goes short — the crowded long is the setup","Waits for OI to drop before entering"], correct:2, feedback:{ ok:"✓ Extreme crowding on one side is exactly what this bot looks for. When everyone is leaning long and the move hasn't happened yet, it fades — and waits for the unwind.", bad:"✗ When the crowd is overwhelmingly positioned one way and price is stalling, who's vulnerable? The bot doesn't follow the herd — it fades it." }},
-  { time:"Thursday · 11:04 PM UTC · SOL-PERP", story:"The bot just closed a losing trade on SOL. The position moved against it within the first 20 minutes and stopped out. It's now 40 minutes later, and a fresh OI divergence signal has appeared on the same coin — a clean setup by its usual criteria.", details:{result:"-$180",held:"22 min",coin:"SOL"}, question:"Does the bot take the second signal?", answers:["Yes — this one looks cleaner than the first","No — one loss ends the day, no exceptions","Yes — but with half the normal position size","Only if the OI divergence is stronger than before"], correct:1, feedback:{ ok:"✓ One loss per day — full stop. The bot doesn't care how good the next setup looks. Protecting capital after a bad read is non-negotiable.", bad:"✗ The bot has a hard rule: lose once, done for the day. No re-entry, no position sizing adjustments. It doesn't chase losses." }},
-  { time:"Friday · Low Volume Session · DOGE-PERP", story:"DOGE open interest has barely moved all day. Volume is thin, positioning is balanced — roughly equal longs and shorts. There's no clear crowding on either side. The market is drifting.", details:{result:"?",held:"?",coin:"DOGE"}, question:"What does the bot do in a balanced, quiet market?", answers:["Trades — even small imbalances are worth acting on","Goes long — drift usually resolves upward","Waits — no crowded positioning means no edge","Shorts — quiet markets tend to break down"], correct:2, feedback:{ ok:"✓ No crowded positioning = no setup. The bot's entire edge depends on finding unstable, imbalanced markets. When the crowd isn't trapped, it stays out completely.", bad:"✗ This bot needs something specific to act on — an imbalance, a crowd leaning hard one way. Without that tension, it has nothing to fade." }},
-  { time:"Monday · Two Signals · AVAX-PERP", story:"The bot fired its first trade of the day on AVAX at 2am UTC — a clean OI divergence, held for 55 minutes, closed green. Now it's 6 hours later. A second divergence has appeared on a different coin with equally strong positioning imbalance.", details:{result:"+$310",held:"55 min",coin:"AVAX"}, question:"Does the bot take the second trade today?", answers:["Yes — it already won once, now it presses the advantage","Yes — different coin, same edge, independent signal","No — it already hit its daily limit","Only if the second signal is on a top-5 coin by volume"], correct:2, feedback:{ ok:"✓ The daily trade limit is firm. One trade, maybe two on a rare day — but once that limit is hit, the bot shuts down regardless of what the market does next.", bad:"✗ No second trade today. The bot's discipline isn't about the quality of the setup — it's about protecting the day's edge. Once the limit is hit, it's finished." }},
-  { time:"Saturday · Active Position · LINK-PERP", story:"The bot has an open long on LINK — 45 minutes in, currently sitting at +$220 unrealized. Suddenly a strong OI divergence signal appears on ARB, a completely separate coin. The signal quality is high by every measure the bot uses.", details:{result:"+$220 open",held:"45 min",coin:"LINK"}, question:"Does the bot open a second position on ARB while LINK is still live?", answers:["Yes — separate coin, independent risk","No — it manages one position at a time","Yes, but it reduces the LINK position first","Only if ARB's OI divergence is larger than LINK's was"], correct:1, feedback:{ ok:"✓ The bot runs one position at a time. A new signal while already in a trade gets ignored — no stacking, no exceptions.", bad:"✗ The bot doesn't stack positions. One open trade at a time, regardless of how good a new signal looks." }},
-  { time:"Sunday · Win Streak · ARB-PERP", story:"The bot has had 5 consecutive profitable days — its best run in months. Today a fresh signal appears on ARB with standard OI divergence. Position size was consistent across the streak. Does a winning run change anything?", details:{result:"+$1,650 (5 days)",held:"5-day streak",coin:"ARB"}, question:"Does the bot increase its position size after a strong winning streak?", answers:["Yes — a hot streak earns bigger bets","No — position sizing is rules-based, not performance-based","It doubles size but only for one trade","It asks for manual approval before sizing up"], correct:1, feedback:{ ok:"✓ The bot doesn't gamble on hot streaks. Sizing is set by the rules — not by recent results. That's how it avoids giving back gains the moment luck reverses.", bad:"✗ Emotional sizing is how bots blow up. This one doesn't do it. Rules determine size — not how well the last week went." }},
-  { time:"Tuesday · Flash Event · Multiple Coins", story:"A major exchange posts rumours of a hack. Every coin drops 12–20% in 90 seconds. OI divergence signals appear across 8 coins simultaneously. The bot's scanning loop fires multiple alerts at once.", details:{result:"?",held:"?",coin:"Multiple"}, question:"What does the bot do during a chaotic, fast-moving volatility event?", answers:["Fires on all 8 signals — maximum opportunity","Fires on the strongest signal only","Goes quiet — chaotic volatility isn't its environment","Waits 5 minutes then enters the largest move"], correct:2, feedback:{ ok:"✓ Chaotic volatility is noise, not signal. The bot needs a structured, crowded imbalance — not a market in freefall. It goes dark and waits.", bad:"✗ Sudden crashes aren't the bot's setup. It hunts structured positioning imbalances, not panic. During chaotic moves, it goes completely quiet." }},
-  { time:"Wednesday · Blacklist Test · TOKEN-PERP", story:"A coin the bot has been scanning just gained huge trading volume. OI divergence is showing one of the strongest readings the bot has ever recorded. But this ticker is on the bot's permanent blacklist — added months ago.", details:{result:"?",held:"?",coin:"BLACKLISTED"}, question:"Does the bot trade a blacklisted coin if the signal is exceptionally strong?", answers:["Yes — signal quality overrides the blacklist","No — blacklisted means never, regardless of signal","Only if volume exceeds a threshold","It alerts the user and waits for manual approval"], correct:1, feedback:{ ok:"✓ Blacklisted tickers are off forever. The bot doesn't negotiate with its own rules based on signal strength — that would create exactly the kind of exception that causes blow-ups.", bad:"✗ Blacklists are absolute. If a ticker is on it, the bot won't trade it — no matter how good the setup looks. Rules are rules." }},
-  { time:"Thursday · Funding Only · BNB-PERP", story:"BNB funding rates are extremely elevated — longs have been paying shorts at 3× normal rates for 12 hours. But when you check OI against price: OI has been flat, price has been drifting up slowly. No divergence.", details:{result:"?",held:"?",coin:"BNB"}, question:"Does elevated funding alone trigger a trade?", answers:["Yes — elevated funding means longs are trapped","No — funding alone isn't the trigger. OI-price divergence is required.","Yes, but only if funding has been elevated 6+ hours","It goes short automatically on any funding above 2×"], correct:1, feedback:{ ok:"✓ Funding is context, not the signal. Without the OI-price divergence pattern, the bot sits out — even if the funding story looks compelling.", bad:"✗ Funding rate alone doesn't pull the trigger. The bot needs to see the specific OI-versus-price structure. Without it, there's no trade." }},
-  { time:"Friday · Position vs Stop · OP-PERP", story:"The bot is in a short position on OP. The trade has been running 80 minutes and is currently down $90. There's no fresh OI signal, but a news headline just dropped suggesting OP will be listed on a new exchange.", details:{result:"-$90 live",held:"80 min ongoing",coin:"OP"}, question:"Does the bot exit early due to the news headline?", answers:["Yes — news headlines change the setup entirely","No — it follows its exit rules, not news","It halves the position size as a hedge","It adds to the short — news pumps are faded"], correct:1, feedback:{ ok:"✓ The bot doesn't read headlines — it follows its exit rules. News is noise unless it changes the OI structure. It holds or exits based on its own criteria only.", bad:"✗ The bot doesn't process news. It has an exit rule and it follows it. External headlines don't override the system." }},
-  { time:"Monday · Re-entry · SUI-PERP", story:"The bot entered a short on SUI, held for 70 minutes, closed green at +$280. Ten minutes later the same OI divergence signal re-appears on SUI — almost identical to the one that just made money. The daily limit allows one more entry.", details:{result:"+$280 closed",held:"70 min",coin:"SUI"}, question:"Does the bot re-enter SUI immediately after a winning trade on the same coin?", answers:["Yes — the signal is valid and the limit allows it","No — it has a cooldown period before re-entering any coin it just traded","Only if the new OI divergence is stronger than the original","Yes, but at half size since it just closed a trade"], correct:1, feedback:{ ok:"✓ After closing a trade on a coin, the bot sits out that ticker for a cooldown period — regardless of what signals appear. It doesn't chase immediate re-entries.", bad:"✗ Per-coin cooldowns prevent re-entry churn. Even if the signal looks identical, the bot won't re-enter a coin it just traded until the cooldown expires." }},
-  { time:"Wednesday · Short Overload · MKR-PERP", story:"MKR has seen aggressive short-building for 48 hours. Open interest is skewed heavily toward shorts. Price has been holding flat — shorts aren't getting rewarded. Funding has flipped slightly negative, meaning shorts are now paying longs.", details:{result:"+$340",held:"52 min",coin:"MKR"}, question:"What side did the bot take?", answers:["Short — the momentum and funding both confirm bearish bias","Long — the crowded short is the setup","It stayed out — negative funding is bearish confirmation","It waited for a volume breakout first"], correct:1, feedback:{ ok:"✓ Extreme short crowding + flat price = shorts trapped. The bot fades the crowded side — here that means going long into the compressed short positioning. That's the squeeze.", bad:"✗ When short OI is extreme and price isn't falling, who's exposed? The shorts. The bot fades the crowd — long into the short squeeze, not with it." }},
-  { time:"Friday · Cross-Bot Check · ETH-PERP", story:"A strong OI divergence signal appears on ETH. The bot checks its position isolation list — another live bot on the same Hyperliquid account already holds an open ETH long from 2 hours ago. Both bots share the same wallet.", details:{result:"?",held:"?",coin:"ETH"}, question:"What does the bot do?", answers:["Enters anyway — the signal is independent and valid","Skips ETH — it never enters a coin another bot already holds","Takes the opposite side to hedge the other bot's risk","Enters at half size to limit the overlap"], correct:1, feedback:{ ok:"✓ Position isolation is absolute. Two bots on one account holding the same coin turns sizing discipline into chaos — and doubles exposure unintentionally. If another bot is in ETH, this one skips it entirely.", bad:"✗ Same account, same coin, two bots = uncontrolled risk stacking. Position isolation rules exist for exactly this reason — another bot in ETH means this one passes." }},
-  { time:"Tuesday · API Timeout · BTC-PERP", story:"The bot's OI data fetch returns a 429 rate-limit error. This is the second consecutive failure. The bot has a pending BTC signal it can't confirm without fresh data. Retrying immediately would likely hit another error.", details:{result:"?",held:"?",coin:"BTC"}, question:"What does the bot do with a pending signal and no fresh data?", answers:["Fires on last known OI data — the signal was valid 2 minutes ago","Retries with exponential backoff and waits for confirmed fresh data before acting","Cancels all signals and pauses for 1 hour","Switches to a backup data provider immediately"], correct:1, feedback:{ ok:"✓ Stale data is no data. The bot retries with backoff and holds until it has a confirmed fresh read. Missing a trade is better than entering blind on outdated numbers.", bad:"✗ Acting on 2-minute-old OI data during a rate limit event is gambling. The bot waits for a clean confirmed read — that's what the retry logic is there for." }},
-  { time:"Monday · Band Compression · ADA-PERP", story:"ADA's Bollinger Bands have compressed to their tightest reading in 60 days. Price has barely moved ±0.2% all week, volume drying up. Then — a candle forms with 4× average volume, closing above the upper band.", details:{result:"+$290",held:"44 min",coin:"ADA"}, question:"What does the SqueezeBot do on this breakout candle?", answers:["Shorts it — overextended breakout candles get faded","Goes long — volume breakout above the upper band is the confirmation signal","Stays flat — low-volatility compression periods should be avoided","Waits for the band to widen further before committing"], correct:1, feedback:{ ok:"✓ Tight bands + volume breakout above the upper band is the SqueezeBot's exact setup. Energy coils during compression — when it releases with volume confirmation, the bot goes with it.", bad:"✗ Band compression is energy coiling. The release with volume above the upper band is what the SqueezeBot was built to catch — not fade." }},
-  { time:"Saturday · Funding Spike · SOL-PERP", story:"SOL perpetual funding just hit 0.22% per 8 hours — roughly 8× the baseline rate. Longs have been paying this for 6 straight hours. The EFCBot captures extreme funding by shorting and collecting those payments.", details:{result:"+$260",held:"6h 14min",coin:"SOL"}, question:"When funding spikes to 8× baseline, what does the EFCBot do?", answers:["Goes long — elevated funding signals strong bullish momentum","Goes short — collects funding payments while the rate normalizes","Waits for funding to drop first, then enters","Ignores funding above 5× — too risky to hold against the momentum"], correct:1, feedback:{ ok:"✓ 8× baseline funding = longs overextended and paying a premium to stay leveraged. The EFCBot shorts to collect those payments. It's not a directional bet — it's a carry trade with a mean-reversion tailwind.", bad:"✗ Extreme funding means longs are desperate to hold. The EFCBot goes short to collect that premium — while waiting for the rate to normalize and the price to follow." }},
-  { time:"Wednesday · Loss Streak · NEAR-PERP", story:"The bot has had 3 losing trades across 3 consecutive days. Each was a valid signal by the rules — the market simply didn't cooperate. Today, an equally clean signal appears on NEAR. The rulebook hasn't changed.", details:{result:"?",held:"?",coin:"NEAR"}, question:"Does the bot adjust its behavior after 3 consecutive losses?", answers:["Yes — 3 losses signals the edge is broken; pause trading","No — it follows the same rules. Losing streaks happen within any valid strategy","It trades but at 50% position size until a win restores confidence","It requires a higher divergence threshold until the streak ends"], correct:1, feedback:{ ok:"✓ Three losses is variance, not edge failure. If the rules are valid, the bot applies them consistently — discretionary adjustments mid-streak is how you destroy an otherwise working system.", bad:"✗ Changing rules after losses turns a rules-based system into an emotional one. The bot doesn't know if the next trade will win — but it knows its rules are intact." }},
-  { time:"Sunday · Thin Market · DOT-PERP", story:"It's Sunday 2am UTC. An OI divergence signal appears on DOT. The bid-ask spread is currently 3.8× its weekday average — slippage on entry alone would consume roughly 40% of the expected profit for this trade.", details:{result:"?",held:"?",coin:"DOT"}, question:"What does the bot do when spread costs consume most of the expected edge?", answers:["Enters anyway — the signal quality outweighs the friction cost","Skips — when spread kills expected edge, there's no trade to take","Enters at market and hopes for fast execution to minimize slippage","Reduces position size to compensate for the higher spread"], correct:1, feedback:{ ok:"✓ A trade only exists if the math works after costs. 3.8× spread eating 40% of expected profit isn't a trade — it's a donation to market makers. No edge = no entry.", bad:"✗ Entry costs matter as much as signal quality. The bot's advantage is measured in basis points. If spread consumes 40% of expected value before the position even opens, there's nothing to capture." }},
-  { time:"Thursday · Limit Approaching · ATOM-PERP", story:"The bot's daily PnL just crossed -3.9% — just below the 4% circuit breaker threshold. A fresh, high-quality OI divergence signal appears on ATOM. If this trade loses its max, the daily limit will be breached.", details:{result:"?",held:"?",coin:"ATOM"}, question:"Does the bot take the trade at -3.9% daily loss?", answers:["Yes — it hasn't triggered the 4% limit yet, so it trades by the rules","No — at -3.9% it should self-restrict to protect the account","Yes but with a tighter stop to cap the downside","Only if the signal is stronger than usual"], correct:0, feedback:{ ok:"✓ At -3.9% the circuit breaker hasn't triggered. The bot follows its rules exactly as written — not rules it invented. Pre-emptive self-restriction isn't in the rulebook.", bad:"✗ The circuit breaker triggers at -4.0%. At -3.9%, the bot is still operational. Inventing extra restrictions the rules don't have is how you second-guess a working system." }},
-  { time:"Monday · Macro Correlation · LTC-PERP", story:"BTC drops 6% in 15 minutes on macro news. LTC, highly correlated with BTC, immediately shows an OI divergence signal — longs are underwater and being liquidated. But this isn't a LTC-specific setup. The structure still reads correctly.", details:{result:"+$370",held:"41 min",coin:"LTC"}, question:"Does the bot act on OI divergence caused by macro correlation spillover?", answers:["Yes — OI divergence is OI divergence regardless of the underlying cause","No — macro-driven moves lack the specific positioning imbalance the bot requires","Yes but with half size during BTC volatility events","Only if LTC OI was elevated before the BTC drop"], correct:0, feedback:{ ok:"✓ The bot reads structure, not narratives. If the OI-price divergence meets its criteria, it fires — it doesn't filter by 'why' the imbalance exists. Cause is irrelevant; structure is everything.", bad:"✗ The bot doesn't categorize move causes. If the OI structure says the setup is valid, it acts. Macro context is for humans — the bot reads the data as it is." }},
-  { time:"Tuesday · Stop Hunt Wick · AVAX-PERP", story:"The bot is long on AVAX. Price wicks sharply down — touching the stop-loss level for 2 seconds before bouncing back hard. The stop triggered an automated close. Price is now 1.8% above the stop-out execution price.", details:{result:"-$95",held:"48 min",coin:"AVAX"}, question:"What happens after the stop is triggered by a wick?", answers:["The bot immediately re-enters — clear stop-hunt reversal signal","The trade is closed, position is gone, and per-coin cooldown starts","The bot cancels the stop-close retroactively","It re-enters at half size to recapture the move"], correct:1, feedback:{ ok:"✓ A stop is a stop. Once triggered, the trade is over and the cooldown begins. The bot doesn't have opinions about whether a wick 'should' have hit the stop. Rules are rules: stop hit → exit → cooldown.", bad:"✗ Chasing re-entries after stop-hunts is how you get hit twice on the same move. Stop triggered = position closed = cooldown starts. The bot doesn't relitigate closed trades." }},
-  { time:"Friday · Trend Alignment · MATIC-PERP", story:"MATIC has been in a clean uptrend for 11 days — higher highs, higher lows, price above all major moving averages. The TrendBot detects a 4-hour Donchian channel breakout. EMA50 slope reads +1.8%. ADX is at 34.", details:{result:"+$415",held:"3h 22min",coin:"MATIC"}, question:"What does the TrendBot do when all filters are aligned?", answers:["Fades the trend — extended moves always revert to mean","Goes long — Donchian breakout + EMA slope + ADX all confirmed","Waits for a pullback to EMA20 before entering","Goes short — ADX above 30 signals exhaustion"], correct:1, feedback:{ ok:"✓ Donchian breakout + positive EMA50 slope + ADX above 20 is the TrendBot's complete confirmation stack. When everything lines up, it goes long with the trend — that's exactly what it was built for.", bad:"✗ The TrendBot doesn't fade strength — it follows it. Breakout plus slope plus ADX all aligned is the cleanest signal in its playbook." }},
-  { time:"Wednesday · Setup Expired · OP-PERP", story:"The bot opened a long on OP 4 hours ago. It's currently +$190 unrealized. The OI crowding that triggered the trade has largely normalized — the trapped positioning has unwound. The max hold time has just expired. No other exit signal fired.", details:{result:"+$190 open",held:"4h 0min",coin:"OP"}, question:"Does the bot stay in past max hold time if the trade is still profitable?", answers:["Yes — profitable trades should run as long as possible","No — max hold time is a hard rule. Time up means exit, regardless of profit","It moves to a trailing stop and lets the winner run","It asks for manual confirmation to extend the hold"], correct:1, feedback:{ ok:"✓ Max hold time exists because the original setup — crowded positioning — no longer exists after 4 hours. Holding longer means running a different kind of trade, one the bot wasn't designed for. Time up = exit.", bad:"✗ The bot entered for a specific reason. If the setup has normalized and the time limit hits, staying in is gambling on momentum — not executing the original edge. Hard limit means hard exit." }},
+  { tag:"CROWD TRAP", time:"Tuesday · ETH-PERP", story:"For 3 hours, traders have been piling into ETH — opening new bets at an accelerating pace. But the price? Completely frozen. Thousands of positions are stacking up on one side while the market refuses to move. The tension is almost visible. Then the bot fires.", details:{result:"+$420",held:"1h 12min",coin:"ETH"}, question:"Bets are piling up but price won't move. What does the bot do?", answers:["Bought — all those new bets must mean price is going up","Went against the crowded side — whoever is trapped will be forced out","Waited for the price to move first","Sold — too many buyers always ends in a crash"], correct:1, feedback:{ ok:"✓ The bot doesn't predict direction — it hunts trapped traders. When bets pile up but price won't budge, someone is about to get squeezed out. The bot fades whoever is crowded.", bad:"✗ More bets ≠ a directional prediction. It means pressure is building. The bot's edge is spotting who's overexposed — and betting against them when they have to fold." }},
+  { tag:"CROWD TRAP", time:"Wednesday · BTC-PERP", story:"The numbers are striking: almost every open BTC position right now is a bet that price goes up. Longs have been paying an extra fee just to stay in for 6 hours straight. Meanwhile, price is hovering at the same level — completely flat. The crowd is all-in, and nothing has happened.", details:{result:"?",held:"?",coin:"BTC"}, question:"90% long, price completely flat. What does the bot do?", answers:["Buys in — if everyone's long, there must be a reason","Passes — the market isn't showing anything unusual","Sells short — the overcrowded long is the setup","Waits for the crowd to reduce first"], correct:2, feedback:{ ok:"✓ When almost everyone is betting the same way and price hasn't moved, it's the crowd that's vulnerable. The bot fades the overloaded side — and waits for the unwind.", bad:"✗ Crowded trades don't win because of the crowd — they lose because of it. Too many people leaning one way means a violent exit when even a few start bailing." }},
+  { tag:"THE RULEBOOK", time:"Thursday · SOL-PERP", story:"The bot just took a loss on SOL — the trade moved against it within 20 minutes and got stopped out. That stings. Now, 40 minutes later, a new signal appears on the same coin. It looks clean. Maybe cleaner than the trade that just lost.", details:{result:"-$180",held:"22 min",coin:"SOL"}, question:"The bot just lost. A new setup appears 40 minutes later. Does it trade?", answers:["Yes — this one looks better than what just lost","No — one loss per day, no exceptions","Yes — but with a smaller bet to be safe","Only if the new signal is significantly stronger"], correct:1, feedback:{ ok:"✓ One loss per day and the bot goes dark. It doesn't matter how good the next opportunity looks. Protecting the account after a bad read is the only priority.", bad:"✗ The bot has one hard rule after a loss: done for the day. No second chances, no smaller bets, no exceptions. Chasing losses is how accounts blow up." }},
+  { tag:"MARKET READ", time:"Friday · DOGE-PERP", story:"It's a dead Friday on DOGE. Volume is thin. The total number of open positions hasn't changed all day. Longs and shorts are almost perfectly balanced — nobody is clearly winning or losing. The market is just drifting with no conviction either way.", details:{result:"?",held:"?",coin:"DOGE"}, question:"Balanced market, no crowded side, nothing happening. What does the bot do?", answers:["Trades anyway — even tiny imbalances are worth acting on","Goes long — slow drifts usually resolve upward","Waits — there's no crowded side to bet against","Sells short — quiet markets often precede drops"], correct:2, feedback:{ ok:"✓ The bot's entire edge is fading an overloaded, unstable crowd. If the market is calm and balanced, there's nothing to fade. It waits.", bad:"✗ Without a crowd trapped on one side, there's no trade. The bot needs tension and imbalance. A quiet balanced market gives it nothing." }},
+  { tag:"THE RULEBOOK", time:"Monday · AVAX-PERP", story:"The bot nailed its first trade of the day on AVAX — opened at 2am, closed green 55 minutes later. A clean win. Now, 6 hours later, an equally strong signal appears on a completely different coin. The setup looks valid.", details:{result:"+$310",held:"55 min",coin:"AVAX"}, question:"First trade won. A second signal appears on a different coin. Does it trade?", answers:["Yes — it already won once, might as well press the advantage","Yes — different coin, independent signal, no reason to stop","No — it's already hit its daily trade limit","Only if the new coin is in the top 5 by trading volume"], correct:2, feedback:{ ok:"✓ The daily trade limit is a hard ceiling. Once hit, the bot shuts down — no matter how good the next setup looks. The discipline is the edge.", bad:"✗ The daily limit isn't a guideline. Once reached, the bot is done for the day. Signal quality doesn't matter — the rule does." }},
+  { tag:"THE RULEBOOK", time:"Saturday · LINK-PERP", story:"The bot is already in a live trade on LINK — 45 minutes in, up $220 and still running. While it's holding, a new signal fires on ARB, a completely different coin. By every measure the bot uses, it looks like a strong setup.", details:{result:"+$220 open",held:"45 min",coin:"LINK"}, question:"Already in a live trade. A great setup appears on a different coin. What does the bot do?", answers:["Yes — they're separate coins, totally independent risk","No — one open position at a time, always","Yes, but it cuts the LINK position in half first","Only if the ARB signal is stronger than LINK was at entry"], correct:1, feedback:{ ok:"✓ The bot runs one position at a time. A new signal while already in a trade gets ignored — no stacking, no exceptions.", bad:"✗ The bot doesn't juggle trades. One open position at a time is a core rule — and it doesn't bend regardless of how good the new signal looks." }},
+  { tag:"DISCIPLINE", time:"Sunday · ARB-PERP", story:"Five profitable days in a row — the bot's best run in months. Today a new signal appears on ARB. Everything looks standard: same setup, same criteria met. But the context feels different. Five wins in a row.", details:{result:"+$1,650 (5 days)",held:"5-day streak",coin:"ARB"}, question:"5 wins in a row. Does the bot increase its bet size?", answers:["Yes — a hot streak earns the right to push harder","No — bet size is fixed by the rules, not by recent results","It doubles the bet for one trade then resets","It waits for manual approval before sizing up"], correct:1, feedback:{ ok:"✓ The bot doesn't ride confidence. Position size is set by the rules — not by how the last 5 days went. Hot streaks end. Rules don't.", bad:"✗ Betting bigger after wins is how bots give back everything they just made. The rules set position size — not the mood." }},
+  { tag:"MARKET READ", time:"Tuesday · Multiple Coins", story:"Rumours of a major exchange hack hit the internet. In 90 seconds, every coin on the board drops 12–20%. The bot's scanner lights up — signals flashing on 8 different coins simultaneously. It's never seen this many alerts at once.", details:{result:"?",held:"?",coin:"Multiple"}, question:"8 signals firing at once during a market-wide crash. What does the bot do?", answers:["Fires on all 8 — maximum chaos, maximum opportunity","Fires on the single strongest signal only","Goes completely quiet — this isn't its kind of market","Waits 5 minutes then enters the biggest mover"], correct:2, feedback:{ ok:"✓ Panic crashes aren't the bot's setup. It needs calm, structured imbalances — not a market in freefall. When chaos hits, it powers down and waits.", bad:"✗ The bot's edge doesn't work during sudden crashes. It hunts structured imbalances, not mass panic. Chaos = sit out." }},
+  { tag:"THE RULEBOOK", time:"Wednesday · TOKEN-PERP", story:"A coin the bot has been tracking just exploded in trading volume. The setup it's showing is one of the strongest the bot has ever recorded — by every number it tracks. But this coin is on the bot's permanent blacklist, added months ago after it was flagged as dangerous.", details:{result:"?",held:"?",coin:"BLACKLISTED"}, question:"Best signal ever — but the coin is permanently blacklisted. Does the bot trade it?", answers:["Yes — a signal this strong should override any rule","No — blacklisted means off limits forever, no exceptions","Only if the volume surge stays above a certain level","It waits for the user to manually approve"], correct:1, feedback:{ ok:"✓ Blacklisted coins are untouchable — no matter what the signal says. Making exceptions based on signal strength is exactly how rules start to break down.", bad:"✗ The blacklist is permanent. One exception — 'just this once, the signal is too good' — is how the whole rule system starts to rot." }},
+  { tag:"MARKET READ", time:"Thursday · BNB-PERP", story:"BNB longs have been paying an extra fee every 8 hours to keep their positions open — and it's been 3× the normal rate for 12 hours straight. That sounds alarming. But when the bot checks the actual positioning: the total number of open bets hasn't spiked, and price is slowly drifting up. No unusual crowding.", details:{result:"?",held:"?",coin:"BNB"}, question:"Longs paying 3× normal fees for 12 hours, but no unusual crowding. Does the bot trade?", answers:["Yes — if longs are paying that much to stay in, they must be trapped","No — the fee alone isn't enough. The bot needs to see crowded positioning too.","Yes — but only if the fee has been elevated for 6+ hours","It automatically shorts any coin with fees above 2× normal"], correct:1, feedback:{ ok:"✓ The fee is a clue, not the signal. Without the crowded positioning structure to go with it, the bot stays out — even if the fee story looks compelling.", bad:"✗ Elevated fees don't pull the trigger alone. The bot needs to see a specific imbalance in open positions. Without that, there's no trade — regardless of how the fees look." }},
+  { tag:"DISCIPLINE", time:"Friday · OP-PERP", story:"The bot is in an active trade on OP — 80 minutes in, currently down $90. Not great. Then a headline drops: OP is about to be listed on a major new exchange. That kind of news usually pumps a coin hard. But the bot's own exit rule hasn't triggered.", details:{result:"-$90 live",held:"80 min ongoing",coin:"OP"}, question:"Trade is losing. Breaking news drops. Does the bot exit early?", answers:["Yes — a listing announcement changes everything","No — it follows its exit rules, not news headlines","It cuts the position in half as a compromise","It actually bets harder — listing pumps always get reversed"], correct:1, feedback:{ ok:"✓ The bot doesn't read news. Its exit criteria are structural — not based on headlines. It closes when the rules say to, not when markets get excited.", bad:"✗ The bot has one job: follow its rules. A news headline isn't in the rulebook. It holds or exits based on its own system — nothing else." }},
+  { tag:"THE RULEBOOK", time:"Monday · SUI-PERP", story:"The bot just closed a winning trade on SUI — held 70 minutes, closed green at +$280. Ten minutes pass. Then the exact same setup appears on SUI again. Almost identical to what just worked. The daily trade count still allows one more entry.", details:{result:"+$280 closed",held:"70 min",coin:"SUI"}, question:"Just closed a winner on SUI. The same setup reappears 10 minutes later. Does it re-enter?", answers:["Yes — the signal is valid and the daily limit allows it","No — it has a mandatory waiting period after closing any trade on a coin","Only if the new setup is stronger than the one that just worked","Yes, but at half size since it just closed a trade there"], correct:1, feedback:{ ok:"✓ After closing a trade on any coin, the bot waits before going back in. No immediate re-entries — that's what the per-coin cooldown is for.", bad:"✗ Cooldowns exist for a reason: to prevent the bot from chasing the same move twice. Even when the setup looks identical, the wait is mandatory." }},
+  { tag:"CROWD TRAP", time:"Wednesday · MKR-PERP", story:"For 2 days, traders have been piling into short positions on MKR — betting the price will drop. But it's not dropping. Price is sitting flat while the shorts wait in frustration. To make it worse, they're now paying a fee every 8 hours just to keep their short positions open.", details:{result:"+$340",held:"52 min",coin:"MKR"}, question:"Everyone is short, price won't drop, shorts are paying fees to wait. What does the bot do?", answers:["Short — 2 days of momentum confirms the move is coming","Long — the trapped shorts are the setup","Stays out — the shorts having to pay means bears have the edge","Waits for a big volume spike before picking a side"], correct:1, feedback:{ ok:"✓ Too many people short, price not falling, and they're paying to wait. That's a crowd walking into a trap. The bot goes long and waits for them to scramble out.", bad:"✗ When everyone is short and price won't fall, the shorts are the ones in danger. The bot fades the crowd — and here, that means going long." }},
+  { tag:"THE RULEBOOK", time:"Friday · ETH-PERP", story:"A strong signal fires on ETH. But before acting, the bot checks one thing: is any other bot on the same trading account already holding ETH? Yes — a different bot opened an ETH position 2 hours ago. Same wallet, same account, different bot.", details:{result:"?",held:"?",coin:"ETH"}, question:"Strong signal on ETH — but another bot on the same account already holds ETH. What happens?", answers:["Enters anyway — the signal is independent and valid","Skips ETH — it never enters a coin another bot on the same account already holds","Takes the opposite side to balance out the other bot's risk","Enters at half size to reduce the overlap"], correct:1, feedback:{ ok:"✓ Two bots on the same account in the same coin = double the exposure without realizing it. Position isolation rules prevent exactly this. If another bot is in ETH, this one skips it.", bad:"✗ Doesn't matter how good the signal is. Two bots in the same coin on the same account means uncontrolled risk stacking. The rule is: if someone else is already there, pass." }},
+  { tag:"DISCIPLINE", time:"Tuesday · BTC-PERP", story:"The bot tries to fetch the latest market data for BTC — and gets an error. Blocked by the exchange's rate limiter. Second attempt: same thing. There's a BTC signal waiting, but the bot can't verify it without fresh data. Retrying right now would just hit another wall.", details:{result:"?",held:"?",coin:"BTC"}, question:"The data feed is blocked. There's a signal waiting but no fresh data. What does the bot do?", answers:["Fires on the last data it has — the signal was valid 2 minutes ago","Retries with increasing wait times and only acts once it has confirmed fresh data","Cancels all signals and pauses trading for an hour","Immediately switches to a backup data source"], correct:1, feedback:{ ok:"✓ Two-minute-old data might as well be no data during a fast-moving market. The bot waits, retries patiently, and only acts when it has a clean confirmed read.", bad:"✗ Acting on stale data is a gamble, not a trade. The bot waits for confirmed fresh numbers — missing a signal is fine. Entering blind is not." }},
+  { tag:"BREAKOUT", time:"Monday · ADA-PERP", story:"ADA's price has been trapped in a tiny range for a full week — the tightest it's been in 2 months. Volume has been drying up. The market looks completely frozen. Then suddenly: trading volume explodes to 4× normal, and price bursts above the top of that quiet zone with force.", details:{result:"+$290",held:"44 min",coin:"ADA"}, question:"Price was frozen for 2 months. Volume explodes. Price bursts out. What does the bot do?", answers:["Sells short — a violent spike like this always snaps back","Goes long — volume explosion above the tight range is the confirmation","Stays flat — compressed ranges are too uncertain to trade","Waits for the range to visibly widen before committing"], correct:1, feedback:{ ok:"✓ Weeks of compression followed by a volume-backed explosion — that's the exact setup the SqueezeBot was built for. Energy coils in tight ranges. When it releases with force, the bot rides it.", bad:"✗ A long quiet period followed by a big volume breakout is a classic setup — not a reason to fade. The SqueezeBot goes with the energy, not against it." }},
+  { tag:"CROWD TRAP", time:"Saturday · SOL-PERP", story:"SOL longs are paying an enormous fee every 8 hours to keep their positions open — 8× the normal rate, and they've been doing it for 6 hours straight. They're essentially paying rent to stay long. A different bot (EFCBot) was built specifically for moments like this.", details:{result:"+$260",held:"6h 14min",coin:"SOL"}, question:"Longs are paying 8× the normal fee to hold their positions. What does the bot do?", answers:["Goes long — if people are paying that much to hold, the move must be real","Goes short — and collects those fee payments as they flow in","Waits for the fee to drop before acting","Ignores it — fees that high mean the move is too dangerous to bet against"], correct:1, feedback:{ ok:"✓ Longs paying 8× normal fees are desperate and overextended. The EFCBot shorts them and literally collects those fee payments. It's not really a directional bet — it's a fee harvest.", bad:"✗ When longs are paying extreme fees to stay in, they're the ones bleeding. The EFCBot shorts them and collects those payments while waiting for the crowd to fold." }},
+  { tag:"DISCIPLINE", time:"Wednesday · NEAR-PERP", story:"Three losing trades across three consecutive days. Each one followed the rules perfectly — the market just didn't cooperate. Now it's day four. A clean signal appears on NEAR. The rulebook is the same as it was on day one.", details:{result:"?",held:"?",coin:"NEAR"}, question:"3 losses in 3 days, all following the rules. A new signal appears. Does the bot change anything?", answers:["Yes — 3 consecutive losses means the strategy is broken; stop and reassess","No — the rules don't change. Losing streaks happen in any strategy","Trades at 50% bet size until a win brings back confidence","Requires a stronger signal before acting, until the streak ends"], correct:1, feedback:{ ok:"✓ Three losses is bad luck, not a broken system — as long as the rules were followed. The bot keeps applying the same rules. Changing them mid-streak is how you ruin a working strategy.", bad:"✗ A losing streak hurts, but adjusting rules in response turns a systematic bot into an emotional one. The bot doesn't know if the next trade wins — but it knows its rules are valid." }},
+  { tag:"COST MATH", time:"Sunday · DOT-PERP", story:"Sunday 2am — the quietest hour of the week for crypto. A signal fires on DOT. But the market is half-asleep: the gap between the buy price and the sell price is nearly 4× wider than a normal weekday. Just getting into this trade would cost 40% of the expected profit before anything even happens.", details:{result:"?",held:"?",coin:"DOT"}, question:"Good signal, but entering the trade alone would cost 40% of the expected profit. Does the bot trade?", answers:["Yes — a good signal is a good signal regardless of conditions","No — when just entering the trade costs 40% of the expected gain, there's nothing left to capture","Enters fast to minimize the cost","Cuts the position size to offset the higher entry cost"], correct:1, feedback:{ ok:"✓ A trade only exists if the math makes sense after all costs. If just entering burns 40% of the expected gain, there's nothing left to capture. No edge = no trade.", bad:"✗ Entry costs aren't a footnote — they're part of the trade. The bot's edge is measured in small percentages. A 40% cost haircut before the position opens leaves nothing to work with." }},
+  { tag:"THE RULEBOOK", time:"Thursday · ATOM-PERP", story:"The bot has had a rough day. It's down 3.9% — dangerously close to the automatic shutdown rule that kicks in at -4%. A fresh, clean signal appears on ATOM. The rulebook is clear: shut down at -4%. It's at -3.9%.", details:{result:"?",held:"?",coin:"ATOM"}, question:"Down -3.9% today. Auto-shutdown triggers at -4%. A clean signal appears. Does it trade?", answers:["Yes — the shutdown rule is -4%. Until it triggers, the bot follows its rules.","No — at -3.9% it should protect itself and skip","Yes but with a tighter stop just in case","Only if the signal is unusually strong"], correct:0, feedback:{ ok:"✓ The shutdown triggers at -4.0%. At -3.9%, the bot is still operational — and still follows its rules. Inventing extra restrictions the rulebook doesn't have is how you break a systematic approach.", bad:"✗ -3.9% is not -4.0%. The rule hasn't triggered. The bot trades by the rules it has — not rules it invents under pressure." }},
+  { tag:"MARKET READ", time:"Monday · LTC-PERP", story:"BTC crashes 6% in 15 minutes on bad macro news. LTC gets dragged down with it — the two almost always move together. In the chaos, a signal appears on LTC: trapped longs being liquidated, positioning looking crowded. It's not a LTC-specific story — LTC is just caught in BTC's blast radius. But the setup data reads correctly.", details:{result:"+$370",held:"41 min",coin:"LTC"}, question:"BTC crashes and drags LTC with it. A valid signal appears on LTC. Does the bot act?", answers:["Yes — a valid setup is a valid setup, regardless of what caused it","No — signals caused by external crashes aren't real setups","Yes, but with half the normal bet size during BTC volatility","Only if LTC's positioning was already elevated before BTC dropped"], correct:0, feedback:{ ok:"✓ The bot reads data, not stories. If the positioning says the setup is valid, it fires — it doesn't investigate why the imbalance appeared. Cause is irrelevant. Structure is everything.", bad:"✗ The bot doesn't ask 'why did this happen?' It asks 'does the setup meet the criteria?' If yes, it fires. The reason behind the move is a human concern — not the bot's." }},
+  { tag:"THE RULEBOOK", time:"Tuesday · AVAX-PERP", story:"The bot is long on AVAX, up $220 and holding. Then price drops sharply — just for 2 seconds, just far enough to trigger the automatic stop-loss — then instantly bounces back. Classic trap. The position was auto-closed at the low. Price is now 1.8% higher than where the bot was stopped out.", details:{result:"-$95",held:"48 min",coin:"AVAX"}, question:"A 2-second price spike triggered the stop-loss. Price bounced right back. What does the bot do?", answers:["Re-enters immediately — it was clearly a trap, the trade is still valid","Accepts the close and starts the waiting period before trading AVAX again","Tries to cancel the stop-close retroactively","Goes back in at half size to recapture the move"], correct:1, feedback:{ ok:"✓ A stop is a stop. Once triggered, the trade is over — and the cooling-off period begins. The bot doesn't have opinions on whether the spike 'should' have hit the stop. It follows the outcome.", bad:"✗ Chasing a re-entry after getting stopped out is how you get hurt twice on the same move. Stop hit = trade closed = wait. No exceptions." }},
+  { tag:"BREAKOUT", time:"Friday · MATIC-PERP", story:"MATIC has been climbing for 11 straight days — higher highs, higher lows, no sign of slowing. The TrendBot monitors for strong breakouts: price just punched above a major multi-week range on strong momentum. Every single filter the bot uses is confirmed and pointing the same direction.", details:{result:"+$415",held:"3h 22min",coin:"MATIC"}, question:"11-day uptrend, breakout above a major range, every filter confirmed. What does the bot do?", answers:["Fades the move — trends this extended always snap back","Goes long — full confirmation across every filter it uses","Waits for a small pullback to get a better entry price","Sells short — strong moves almost always reverse fast"], correct:1, feedback:{ ok:"✓ When every filter aligns — breakout, momentum, trend strength — the TrendBot goes long with full conviction. That's exactly what it was built for. It doesn't second-guess confirmed signals.", bad:"✗ The TrendBot follows trends. When every single check it runs says 'confirmed,' it goes. Waiting for a pullback or fading the move contradicts the entire system." }},
+  { tag:"THE RULEBOOK", time:"Wednesday · OP-PERP", story:"The bot opened a long on OP 4 hours ago. It's up $190 and still running — the trade has been a success. The original reason it entered (too many people on the wrong side) has mostly resolved. The 4-hour hold limit just hit. No other exit trigger has fired.", details:{result:"+$190 open",held:"4h 0min",coin:"OP"}, question:"Trade is up $190. The 4-hour time limit just hit. Does the bot stay in?", answers:["Yes — you never cut a winning trade early","No — 4 hours is the hard limit. Time's up, regardless of profit","Moves to a trailing stop and lets the winner run","Waits for manual confirmation before exiting a winner"], correct:1, feedback:{ ok:"✓ The bot entered for a specific reason — crowded positioning. That's resolved now. Holding past the time limit means running a different trade than the one it was designed for. Time up = exit.", bad:"✗ 'Still profitable' isn't an exit rule. 'Time limit hit' is. The original setup is gone — holding longer is a different bet entirely." }},
 ];
 
 // ─────────────────────────────────────────────────────────────────
@@ -966,7 +986,8 @@ function startTimer(){
   setTimeout(()=>{bar.style.transition=`width ${TIMER_SECS*1000}ms linear`;bar.style.width='0%';},30);
   timerInterval=setInterval(()=>{
     const e=(Date.now()-qStartTime)/1000;
-    if(e>TIMER_SECS*0.6) bar.className='timer-fill urgent';
+    if(e>TIMER_SECS*0.4 && e<=TIMER_SECS*0.75) bar.className='timer-fill warn';
+    else if(e>TIMER_SECS*0.75) bar.className='timer-fill urgent';
     if(e>=TIMER_SECS){ stopTimer(); showTimeoutModal(); }
   },200);
 }
@@ -1007,6 +1028,7 @@ function renderStreakBadge(){
 // ─────────────────────────────────────────────────────────────────
 function renderClues(){
   const g=document.getElementById('clues-grid');
+  if(!g) return;
   g.innerHTML='';
   ALL_CLUES.forEach((c,i)=>{
     const d=document.createElement('div');
@@ -1020,20 +1042,24 @@ function renderClues(){
 // ─────────────────────────────────────────────────────────────────
 // RENDER SIGNAL
 // ─────────────────────────────────────────────────────────────────
+const TAG_CLASS = {'CROWD TRAP':'tag-crowd','THE RULEBOOK':'tag-rule','DISCIPLINE':'tag-disc','BREAKOUT':'tag-break','MARKET READ':'tag-market','COST MATH':'tag-cost'};
 function renderSignal(t){
-  document.getElementById('signal-box').innerHTML=`
-    <div class="signal-tag">Intercepted Signal</div>
+  const tc = TAG_CLASS[t.tag]||'tag-rule';
+  const box = document.getElementById('signal-box');
+  box.className = 'signal-box ' + tc;
+  const hasResult = t.details.result && t.details.result!=='?';
+  const hasHeld   = t.details.held && t.details.held!=='?';
+  const statsItems = [];
+  if(hasResult) statsItems.push(`<div class="ss-item"><div class="ss-val">${t.details.result}</div><div class="ss-label">Result</div></div>`);
+  if(hasHeld)   statsItems.push(`<div class="ss-item"><div class="ss-val">${t.details.held}</div><div class="ss-label">Hold time</div></div>`);
+  statsItems.push(`<div class="ss-item"><div class="ss-val">${t.details.coin}</div><div class="ss-label">Coin</div></div>`);
+  const statsHtml = (hasResult||hasHeld) ? `<div class="signal-stats">${statsItems.join('')}</div>` : `<div class="signal-coin">${t.details.coin}</div>`;
+  box.innerHTML=`
+    <div class="signal-tag">${t.tag||'Signal'}</div>
     <div class="signal-time">${t.time}</div>
     <div class="signal-story">${t.story}</div>
-    <div class="signal-stats">
-      <div class="ss-item"><div class="ss-val">${t.details.result}</div><div class="ss-label">Result</div></div>
-      <div class="ss-item"><div class="ss-val">${t.details.held}</div><div class="ss-label">Hold time</div></div>
-      <div class="ss-item"><div class="ss-val">${t.details.coin}</div><div class="ss-label">Coin</div></div>
-    </div>
-    <div class="oi-visual">
-      <div class="oi-col"><div class="oi-col-label">Open Interest</div><div class="oi-bars"><div class="oi-bar flat" style="height:10px"></div><div class="oi-bar flat" style="height:14px"></div><div class="oi-bar rise" style="height:22px"></div><div class="oi-bar rise" style="height:28px"></div><div class="oi-bar rise" style="height:35px"></div></div><div class="oi-val up">↑ rising</div></div>
-      <div class="oi-col"><div class="oi-col-label">Price</div><div class="oi-bars"><div class="oi-bar flat" style="height:18px"></div><div class="oi-bar flat" style="height:20px"></div><div class="oi-bar flat" style="height:17px"></div><div class="oi-bar flat" style="height:19px"></div><div class="oi-bar flat" style="height:18px"></div></div><div class="oi-val fl">→ flat</div></div>
-    </div>`;
+    ${statsHtml}
+    `;
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1054,7 +1080,7 @@ function renderQuestion(){
   });
   document.getElementById('feedback').className='feedback';
   document.getElementById('next-btn').disabled=true;
-  document.getElementById('next-btn').textContent=qIndex<4?'Next Signal →':'See Results →';
+  document.getElementById('next-btn').textContent=qIndex<4?'Next Question →':'See Results →';
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1140,9 +1166,16 @@ function showResults(fresh){
     :`You got ${correctCount} right. Come back tomorrow — new signals, fresh shot at the leaderboard.`;
   document.getElementById('score-tiles').innerHTML=qResults.map(r=>`<span class="score-tile">${r==='ok'?'🟩':'🟥'}</span>`).join('');
 
+  // Restore share bonuses already earned today (e.g. page refresh)
+  const sharedToday=getLS('ctb_shared_'+todayKey(),[]);
+  const bonusAlreadyIn = sharedToday.length * SHARE_BONUS;
+  // sessionPts is restored from localStorage which includes bonuses; no double-apply needed
+  document.getElementById('r-score').innerHTML=`${sessionPts}<span>points</span>`;
+  document.getElementById('pts-val').textContent=sessionPts;
+
   const savedName=getLS('ctb_callsign','');
   if(savedName) document.getElementById('callsign').value=savedName;
-  if(scoreSaved){document.getElementById('submit-btn').disabled=true;document.getElementById('callsign').disabled=true;document.getElementById('submit-btn').textContent='Posted ✓';}
+  if(scoreSaved){document.getElementById('submit-btn').disabled=true;document.getElementById('callsign').disabled=true;document.getElementById('submit-btn').textContent='Saved ✓';}
   renderLeaderboard('today');
   startNextCountdown();
   updateBetaCallout();
@@ -1292,7 +1325,8 @@ async function submitScore(){
   const streak=getLS('ctb_streak',1), cracked=correctCount===5;
   btn.disabled=true; btn.textContent='Posting...';
   const sbOk = SB_ON ? (await sbPost(name,sessionPts,cracked,streak)) !== null : true;
-  if(!sbOk){ btn.disabled=false; btn.textContent='Post Score'; toast('Connection error — try again'); return; }
+  if(!sbOk){ btn.disabled=false; btn.textContent='Save score →'; toast('Connection error — try again'); return; }
+  window.umami&&umami.track('score_posted',{score:sessionPts,cracked,streak});
   const entry={call_sign:name,score:sessionPts,day_streak:streak,cracked};
   const tk=todayKey();
   const td=getLS('ctb_lb_'+tk,[]); td.push(entry); td.sort((a,b)=>b.score-a.score); setLS('ctb_lb_'+tk,td.slice(0,20));
@@ -1301,8 +1335,8 @@ async function submitScore(){
   setLS('ctb_callsign',name);
   renderNavDetective();
   const pd=getLS('ctb_played_'+tk,{}); pd.saved=true; setLS('ctb_played_'+tk,pd);
-  document.getElementById('callsign').disabled=true; btn.textContent='Posted ✓';
-  toast('Score posted!');
+  document.getElementById('callsign').disabled=true; btn.textContent='Saved ✓';
+  toast('Score saved!');
   renderLeaderboard(currentTab);
   updateBetaCallout();
 }
@@ -1322,9 +1356,37 @@ function copyToClipboard(text){
   else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}
 }
 
+function applyShareBonus(platform){
+  const key='ctb_shared_'+todayKey();
+  const shared=getLS(key,[]);
+  if(shared.includes(platform)) return; // already earned for this platform today
+  shared.push(platform);
+  setLS(key,shared);
+  sessionPts+=SHARE_BONUS;
+  // Update score display with pop
+  const pv=document.getElementById('pts-val');
+  if(pv){ pv.textContent=sessionPts; pv.classList.remove('pop'); void pv.offsetWidth; pv.classList.add('pop'); }
+  const rs=document.getElementById('r-score');
+  if(rs) rs.innerHTML=`${sessionPts}<span>points</span>`;
+  // Persist updated score
+  const tk=todayKey();
+  const pd=getLS('ctb_played_'+tk,{}); pd.score=sessionPts; setLS('ctb_played_'+tk,pd);
+  toast(`+${SHARE_BONUS} pts share bonus! (${shared.length}/4)`);
+  // If already posted, re-enable to allow update
+  if(scoreSaved){
+    scoreSaved=false;
+    const btn=document.getElementById('submit-btn');
+    const cs=document.getElementById('callsign');
+    if(btn){ btn.disabled=false; btn.textContent='Update score →'; }
+    if(cs) cs.disabled=false;
+  }
+}
+
 function shareTo(platform){
   const text=shareText();
   const url='https://edgardextra-lang.github.io/crack-the-bot';
+  window.umami&&umami.track('share_clicked',{platform});
+  applyShareBonus(platform);
   if(platform==='x'){
     window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank','noopener');
   } else if(platform==='fb'){
