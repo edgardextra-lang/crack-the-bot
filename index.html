@@ -4,6 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crack The Bot — Daily Puzzle</title>
+<meta name="description" content="A real trading bot runs live on Hyperliquid. 5 intercepted signals daily — can you figure out how it thinks? Top 20 win HyperForge Beta access.">
+
+<!-- Open Graph (LinkedIn, Facebook, iMessage, Slack, Discord) -->
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="https://edgardextra-lang.github.io/crack-the-bot">
+<meta property="og:title"       content="Crack The Bot — Daily Trading Puzzle">
+<meta property="og:description" content="A real trading bot runs live on Hyperliquid. 5 intercepted signals every day — read the setup, crack the logic, earn points. Top 20 over 30 days win early HyperForge Beta access.">
+<meta property="og:image"       content="https://edgardextra-lang.github.io/crack-the-bot/og-image.png">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="Crack The Bot — Daily Trading Puzzle">
+<meta name="twitter:description" content="A real bot runs live on Hyperliquid. 5 intercepted signals daily — can you think like an algorithm?">
+<meta name="twitter:image"       content="https://edgardextra-lang.github.io/crack-the-bot/og-image.png">
+
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -832,15 +849,11 @@ const POOL = [
 // ─────────────────────────────────────────────────────────────────
 // DAILY PUZZLE
 // ─────────────────────────────────────────────────────────────────
-function todayKey() {
-  const d = new Date();
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
-}
-function yesterdayKey() {
-  const d = new Date(Date.now()-86400000);
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
-}
-function puzzleNum() { return Math.max(1, Math.floor((Date.now()-LAUNCH)/86400000)+1); }
+// All puzzle dates use EDT (UTC-4) — puzzle resets at midnight Eastern time
+function etDateKey(ts){ const d=new Date(ts-4*3600000); return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`; }
+function todayKey()     { return etDateKey(Date.now()); }
+function yesterdayKey() { return etDateKey(Date.now()-86400000); }
+function puzzleNum()    { return Math.max(1,Math.floor((Date.now()-LAUNCH)/86400000)+1); }
 
 function seededShuffle(arr, seed) {
   const a=[...arr]; let s=seed;
@@ -910,8 +923,12 @@ function updateSprintBadge(){
 // ─────────────────────────────────────────────────────────────────
 function startNextCountdown(){
   function upd(){
-    const now=new Date(),next=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()+1));
-    const d=next-now,h=String(Math.floor(d/3600000)).padStart(2,'0'),m=String(Math.floor((d%3600000)/60000)).padStart(2,'0'),s=String(Math.floor((d%60000)/1000)).padStart(2,'0');
+    const now=Date.now();
+    // Shift to EDT (UTC-4) to find current ET date, then compute next ET midnight in UTC
+    const et=new Date(now-4*3600000);
+    const nextMidnightET=Date.UTC(et.getUTCFullYear(),et.getUTCMonth(),et.getUTCDate()+1)+4*3600000;
+    const d=nextMidnightET-now;
+    const h=String(Math.floor(d/3600000)).padStart(2,'0'),m=String(Math.floor((d%3600000)/60000)).padStart(2,'0'),s=String(Math.floor((d%60000)/1000)).padStart(2,'0');
     const el=document.getElementById('cd-next');
     if(el) el.textContent=`${h}:${m}:${s}`;
   }
