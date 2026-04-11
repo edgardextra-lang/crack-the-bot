@@ -920,7 +920,8 @@ async function fetchStats(){
   }catch{}
 }
 function renderNavDetective(){
-  const name=getLS('ctb_callsign','');
+  let name=getLS('ctb_callsign','');
+  if(!name){try{name=localStorage.getItem('ctb_callsign')||'';}catch{}}
   const el=document.getElementById('nav-detective');
   if(name&&el){ document.getElementById('nav-det-name').textContent=name; el.style.display=''; }
 }
