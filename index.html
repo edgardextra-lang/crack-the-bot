@@ -775,7 +775,7 @@ const EJS_TEMPLATE_ID = 'template_30zl6lf';
 const EJS_ON = EJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY';
 
 // Set false in production — true only for testing via ?test=end
-const BETA_TEST_MODE = true;
+const BETA_TEST_MODE = false;
 
 const STATS_API  = 'stats.json';
 const LAUNCH     = new Date('2026-04-11T00:00:00Z');
@@ -874,9 +874,13 @@ function touchStreak() {
 const H=()=>({'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'});
 async function sbFetch(path,opts={}){
   if(!SB_ON) return null;
-  try{ const r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{headers:H(),...opts}); if(!r.ok) return null; const t=await r.text(); return t?JSON.parse(t):null; }catch{return null;}
+  try{
+    const r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{headers:H(),...opts});
+    if(!r.ok){ console.warn('Supabase',r.status,await r.text()); return null; }
+    const t=await r.text(); return t?JSON.parse(t):null;
+  }catch(e){ console.warn('Supabase fetch error',e); return null; }
 }
-async function sbPost(cs,score,cracked,streak){ return sbFetch('ctb_scores',{method:'POST',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({call_sign:cs,score,puzzle_date:todayKey(),day_streak:streak,cracked})}); }
+async function sbPost(cs,score,cracked,streak){ return sbFetch('ctb_scores',{method:'POST',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({call_sign:cs,score,puzzle_date:todayKey(),day_streak:streak,cracked:cracked?1:0})}); }
 async function sbBoard(date){ return sbFetch(`ctb_scores?${date?`puzzle_date=eq.${date}&`:''}order=score.desc&limit=10`); }
 
 // ─────────────────────────────────────────────────────────────────
@@ -884,7 +888,7 @@ async function sbBoard(date){ return sbFetch(`ctb_scores?${date?`puzzle_date=eq.
 // ─────────────────────────────────────────────────────────────────
 async function fetchStats(){
   try{
-    const d=await(await fetch(STATS_API)).json();
+    const d=await(await fetch(STATS_API+'?t='+Date.now(),{cache:'no-store'})).json();
     document.getElementById('n-wr').textContent=d.combined_win_rate.toFixed(1)+'%';
     document.getElementById('n-pnl').textContent=(d.sum_pnl_pct>=0?'+':'')+d.sum_pnl_pct.toFixed(2)+'%';
     document.getElementById('n-trades').textContent=d.combined_trade_count;
@@ -1101,7 +1105,9 @@ function showResults(fresh){
     :`You got ${correctCount} right. Come back tomorrow — new signals, fresh shot at the leaderboard.`;
   document.getElementById('score-tiles').innerHTML=qResults.map(r=>`<span class="score-tile">${r==='ok'?'🟩':'🟥'}</span>`).join('');
 
-  if(scoreSaved){document.getElementById('submit-btn').disabled=true;document.getElementById('callsign').disabled=true;}
+  const savedName=getLS('ctb_callsign','');
+  if(savedName) document.getElementById('callsign').value=savedName;
+  if(scoreSaved){document.getElementById('submit-btn').disabled=true;document.getElementById('callsign').disabled=true;document.getElementById('submit-btn').textContent='Posted ✓';}
   renderLeaderboard('today');
   startNextCountdown();
   updateBetaCallout();
@@ -1111,29 +1117,42 @@ function showResults(fresh){
 // BETA CALLOUT
 // ─────────────────────────────────────────────────────────────────
 async function updateBetaCallout(){
+  const callout=document.getElementById('beta-callout');
   const el=document.getElementById('beta-callout-text');
-  const board=await sbBoard(todayKey()) || getLS('ctb_lb_'+todayKey(),[]);
+  const sprintOver=Date.now()>END_DATE;
+
+  // During sprint: show today's rank. After sprint: use all-time rank to determine winners.
+  const board=sprintOver
+    ? (await sbBoard(null) || getLS('ctb_lb_alltime',[]))
+    : (await sbBoard(todayKey()) || getLS('ctb_lb_'+todayKey(),[]));
+
   if(!board||!board.length){
-    el.innerHTML='<strong>Post your score</strong> to claim your spot on the leaderboard. First 20 with most points win HyperForge Beta.';
-    if(BETA_TEST_MODE){
-      document.getElementById('win-score-val').textContent=sessionPts;
-      setTimeout(()=>document.getElementById('win-modal').classList.add('show'),600);
-    }
+    el.innerHTML=sprintOver
+      ? 'The 30-day sprint has ended. Final results are being tallied.'
+      : '<strong>Post your score</strong> to appear on the leaderboard. Top 20 over 30 days win HyperForge Beta.';
     return;
   }
+
   const rank=board.findIndex(e=>e.score<=sessionPts);
   const pos=rank===-1?board.length+1:rank+1;
-  const inTop20=pos<=BETA_SPOTS||BETA_TEST_MODE;
-  if(inTop20){
-    el.innerHTML=`You're currently <strong>#${pos}</strong> — inside the top ${BETA_SPOTS}. <strong>You're on track for HyperForge Beta access.</strong>`;
-    document.getElementById('beta-callout').style.borderColor='rgba(52,211,153,.4)';
-    // Show win modal after short delay
+  const inTop20=pos<=BETA_SPOTS;
+
+  if(sprintOver&&inTop20){
+    // Sprint over + top 20 → show win modal
+    el.innerHTML=`You finished <strong>#${pos}</strong> — you made the top ${BETA_SPOTS}. <strong>HyperForge Beta access is yours.</strong>`;
+    callout.style.borderColor='rgba(52,211,153,.4)';
     if(!getLS('ctb_beta_submitted',false)){
       document.getElementById('win-score-val').textContent=sessionPts;
       setTimeout(()=>document.getElementById('win-modal').classList.add('show'),600);
     }
+  } else if(sprintOver){
+    el.innerHTML=`You finished <strong>#${pos}</strong>. The sprint has ended — thanks for playing.`;
+  } else if(inTop20){
+    // During sprint + currently top 20 → encourage, NO modal
+    el.innerHTML=`You're <strong>#${pos} today</strong> — currently inside the top ${BETA_SPOTS}. Come back tomorrow to hold your spot.`;
+    callout.style.borderColor='rgba(52,211,153,.4)';
   } else {
-    el.innerHTML=`You're currently <strong>#${pos}</strong>. Top ${BETA_SPOTS} win early HyperForge Beta access — keep playing daily to climb.`;
+    el.innerHTML=`You're <strong>#${pos} today</strong>. Top ${BETA_SPOTS} over 30 days win HyperForge Beta — come back tomorrow.`;
   }
 }
 
@@ -1236,15 +1255,17 @@ async function submitScore(){
   const name=(document.getElementById('callsign').value||'ANON').trim().toUpperCase().slice(0,10)||'ANON';
   const streak=getLS('ctb_streak',1), cracked=correctCount===5;
   btn.disabled=true; btn.textContent='Posting...';
-  if(SB_ON) await sbPost(name,sessionPts,cracked,streak);
+  const sbOk = SB_ON ? (await sbPost(name,sessionPts,cracked,streak)) !== null : true;
+  if(!sbOk){ btn.disabled=false; btn.textContent='Post Score'; toast('Connection error — try again'); return; }
   const entry={call_sign:name,score:sessionPts,day_streak:streak,cracked};
   const tk=todayKey();
   const td=getLS('ctb_lb_'+tk,[]); td.push(entry); td.sort((a,b)=>b.score-a.score); setLS('ctb_lb_'+tk,td.slice(0,20));
   const al=getLS('ctb_lb_alltime',[]); al.push(entry); al.sort((a,b)=>b.score-a.score); setLS('ctb_lb_alltime',al.slice(0,50));
   scoreSaved=true;
+  setLS('ctb_callsign',name);
   const pd=getLS('ctb_played_'+tk,{}); pd.saved=true; setLS('ctb_played_'+tk,pd);
   document.getElementById('callsign').disabled=true; btn.textContent='Posted ✓';
-  toast('Score saved!');
+  toast('Score posted!');
   renderLeaderboard(currentTab);
   updateBetaCallout();
 }
