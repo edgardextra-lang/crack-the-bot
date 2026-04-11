@@ -368,7 +368,9 @@ input,textarea { font:inherit; }
 .lb-table  { background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden; }
 .lb-head   { display:grid;grid-template-columns:28px 1fr 52px 60px;padding:7px 14px;background:rgba(0,0,0,.3);font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);gap:8px; }
 .lb-row    { display:grid;grid-template-columns:28px 1fr 52px 60px;padding:9px 14px;border-top:1px solid var(--border);align-items:center;font-size:12px;gap:8px; }
-.lb-row.you { background:rgba(99,102,241,.08); }
+.lb-row.you { background:rgba(99,102,241,.12);border-left:2px solid var(--indigo); }
+.nav-detective { font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap; }
+.nav-detective em { font-style:normal;color:var(--indigo);font-weight:700; }
 .lb-rank   { font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text3); }
 .lb-rank.r1 { color:var(--amber); }
 .lb-rank.r2 { color:var(--text2); }
@@ -586,10 +588,12 @@ input,textarea { font:inherit; }
         <span class="nav-stat">WR <em class="g" id="n-wr">—</em></span>
         <span class="nav-stat">PnL <em class="g" id="n-pnl">—</em></span>
         <span class="nav-stat"><em id="n-trades">—</em> trades</span>
+        <span class="nav-stat" id="n-updated" style="display:none">as of <em id="n-upd-time">—</em></span>
       </div>
     </div>
     <div class="nav-right">
       <!-- VT_WALLET_SLOT -->
+      <span id="nav-detective" class="nav-detective" style="display:none">DET: <em id="nav-det-name"></em></span>
       <a href="leaderboard.html" class="nav-link">Leaderboard</a>
     </div>
   </div>
@@ -906,7 +910,19 @@ async function fetchStats(){
     document.getElementById('n-wr').textContent=d.combined_win_rate.toFixed(1)+'%';
     document.getElementById('n-pnl').textContent=(d.sum_pnl_pct>=0?'+':'')+d.sum_pnl_pct.toFixed(2)+'%';
     document.getElementById('n-trades').textContent=d.combined_trade_count;
+    if(d.updated_at){
+      const t=new Date(d.updated_at);
+      const hh=String(t.getUTCHours()-4<0?t.getUTCHours()+20:t.getUTCHours()-4).padStart(2,'0');
+      const mm=String(t.getUTCMinutes()).padStart(2,'0');
+      document.getElementById('n-upd-time').textContent=hh+':'+mm+' ET';
+      document.getElementById('n-updated').style.display='';
+    }
   }catch{}
+}
+function renderNavDetective(){
+  const name=getLS('ctb_callsign','');
+  const el=document.getElementById('nav-detective');
+  if(name&&el){ document.getElementById('nav-det-name').textContent=name; el.style.display=''; }
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1249,9 +1265,10 @@ async function renderLeaderboard(tab){
   if(!rows) rows=getLS('ctb_lb_'+(tab==='today'?todayKey():'alltime'),[]);
   if(!rows||!rows.length){el.innerHTML=`<div class="lb-table"><div class="lb-empty">No scores yet — be first.</div></div>`;return;}
   const rc=['r1','r2','r3'];
+  const myName=getLS('ctb_callsign','').toUpperCase();
   const head=`<div class="lb-head"><div>#</div><div>Detective</div><div style="text-align:center">Streak</div><div style="text-align:right">Pts</div></div>`;
   const rowsHtml=rows.slice(0,10).map((e,i)=>{
-    const you=e.score===sessionPts&&!scoreSaved;
+    const you=myName&&(e.call_sign||'').toUpperCase()===myName;
     return `<div class="lb-row${you?' you':''}"><div class="lb-rank ${rc[i]||''}">${i+1}</div><div class="lb-name">${e.call_sign||e.name||'ANON'}${you?' ◀':''}</div><div class="lb-streak">${e.day_streak||'—'}</div><div class="lb-pts">${e.score}</div></div>`;
   }).join('');
   el.innerHTML=`<div class="lb-table">${head}${rowsHtml}</div>`;
@@ -1281,6 +1298,7 @@ async function submitScore(){
   const al=getLS('ctb_lb_alltime',[]); al.push(entry); al.sort((a,b)=>b.score-a.score); setLS('ctb_lb_alltime',al.slice(0,50));
   scoreSaved=true;
   setLS('ctb_callsign',name);
+  renderNavDetective();
   const pd=getLS('ctb_played_'+tk,{}); pd.saved=true; setLS('ctb_played_'+tk,pd);
   document.getElementById('callsign').disabled=true; btn.textContent='Posted ✓';
   toast('Score posted!');
@@ -1360,7 +1378,7 @@ function init(){
     dailyTrades=getDailyTrades();
     document.getElementById('p-num').textContent='#TEST';
     document.getElementById('p-date').textContent='Test';
-    renderStreakBadge(); fetchStats();
+    renderStreakBadge(); fetchStats(); renderNavDetective();
     showResults(true);
     return;
   }
@@ -1382,6 +1400,7 @@ function init(){
   setInterval(updateSprintBadge,60000);
 
   renderStreakBadge();
+  renderNavDetective();
   fetchStats();
   setInterval(fetchStats,60000);
 
