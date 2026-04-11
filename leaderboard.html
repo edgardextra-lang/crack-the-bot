@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard — Crack The Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:          #080C14;
+  --bg2:         #0D1320;
+  --card:        #111827;
+  --card-hover:  #1a2235;
+  --border:      #1e293b;
+  --border-light:#334155;
+  --text1:       #f1f5f9;
+  --text2:       #94a3b8;
+  --text3:       #64748b;
+  --indigo:      #818cf8;
+  --indigo-dim:  #6366f1;
+  --indigo-bg:   rgba(99,102,241,0.12);
+  --green:       #34d399;
+  --green-dim:   #10b981;
+  --green-bg:    rgba(16,185,129,0.12);
+  --amber:       #fbbf24;
+  --amber-bg:    rgba(251,191,36,0.10);
+  --red:         #fb7185;
+  --red-bg:      rgba(251,113,133,0.10);
+  --cyan:        #22d3ee;
+  --grad-indigo: linear-gradient(135deg,#6366f1,#818cf8);
+  --grad-green:  linear-gradient(135deg,#10b981,#34d399);
+  --gold:        #f59e0b;
+  --silver:      #94a3b8;
+  --bronze:      #cd7c2f;
+  --mono:        'JetBrains Mono', monospace;
+  --sans:        'Inter', sans-serif;
+  --r:           10px;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; -webkit-font-smoothing:antialiased; }
+body { font-family:var(--sans); background:var(--bg); color:var(--text1); line-height:1.6; overflow-x:hidden; min-height:100vh; }
+button { font:inherit; cursor:pointer; border:0; background:none; color:inherit; }
+a { text-decoration:none; color:inherit; }
+
+/* ── Ambient ── */
+.orbs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.orb  { position:absolute; border-radius:50%; filter:blur(90px); mix-blend-mode:screen; will-change:transform; }
+.orb1 { width:560px;height:560px;background:radial-gradient(circle,#6366f1 0%,transparent 70%);top:-120px;left:-120px;opacity:.45;animation:od1 26s ease-in-out infinite alternate; }
+.orb2 { width:420px;height:420px;background:radial-gradient(circle,#22d3ee 0%,transparent 70%);top:40%;right:-100px;opacity:.28;animation:od2 32s ease-in-out infinite alternate; }
+.orb3 { width:500px;height:500px;background:radial-gradient(circle,#10b981 0%,transparent 70%);bottom:-160px;left:28%;opacity:.22;animation:od3 38s ease-in-out infinite alternate; }
+@keyframes od1 { 0%{transform:translate(0,0) scale(1)} 50%{transform:translate(70px,40px) scale(1.07)} 100%{transform:translate(-40px,80px) scale(0.95)} }
+@keyframes od2 { 0%{transform:translate(0,0) scale(1)} 50%{transform:translate(-55px,55px) scale(1.1)} 100%{transform:translate(-20px,-38px) scale(0.93)} }
+@keyframes od3 { 0%{transform:translate(0,0) scale(1)} 50%{transform:translate(65px,-45px) scale(1.05)} 100%{transform:translate(-28px,38px) scale(0.96)} }
+
+.grid-overlay {
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(99,102,241,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.04) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);
+}
+
+/* ── Nav ── */
+.nav {
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:14px 0;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:rgba(8,12,20,.75);
+  border-bottom:1px solid transparent;
+  transition:border-color .3s,background .3s;
+}
+.nav.scrolled { border-bottom-color:var(--border);background:rgba(8,12,20,.94); }
+.nav-inner { max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative; }
+.nav-logo { font-family:var(--mono);font-weight:700;font-size:16px;display:flex;align-items:center;gap:10px;flex-shrink:0; }
+.logo-icon { width:30px;height:30px;background:var(--grad-indigo);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px; }
+.nav-center { position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center; }
+.nav-right { display:flex;align-items:center;gap:20px; }
+.nav-link { font-size:13px;font-weight:500;color:var(--text2);transition:color .2s; }
+.nav-link:hover,.nav-link.active { color:var(--text1); }
+.nav-stats { display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;color:var(--text3); }
+.live-pip { width:6px;height:6px;border-radius:50%;background:var(--green);animation:live 1.8s ease-in-out infinite; flex-shrink:0; }
+@keyframes live { 0%{box-shadow:0 0 0 0 rgba(52,211,153,.6)} 60%{box-shadow:0 0 0 6px rgba(52,211,153,0)} 100%{box-shadow:0 0 0 0 rgba(52,211,153,0)} }
+.nav-stat { color:var(--text2); }
+.nav-stat em { font-style:normal; }
+.nav-stat em.g { color:var(--green); }
+.nav-stat em.a { color:var(--amber); }
+.nav-cta { background:var(--grad-indigo);color:#fff;padding:8px 16px;border-radius:8px;font-weight:600;font-size:13px;transition:opacity .2s,transform .2s;white-space:nowrap; }
+.nav-cta:hover { opacity:.88;transform:translateY(-1px); }
+@media(max-width:680px) { .nav-center,.nav-link:not(.nav-cta){display:none;} }
+
+/* ── Page ── */
+.page { position:relative;z-index:1;max-width:900px;margin:0 auto;padding:88px 20px 80px; }
+
+/* ── Hero ── */
+.hero { text-align:center;margin-bottom:40px; }
+.hero-tag { font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--indigo);margin-bottom:12px; }
+.hero-title { font-size:32px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px; }
+.hero-title span { background:var(--grad-indigo);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
+.hero-sub { font-size:14px;color:var(--text2); }
+
+/* ── Sprint status card ── */
+.sprint-card {
+  background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(34,211,238,.08));
+  border:1px solid rgba(99,102,241,.3);
+  border-radius:14px;
+  padding:20px 24px;
+  margin-bottom:28px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  flex-wrap:wrap;
+}
+.sprint-left { display:flex;flex-direction:column;gap:4px; }
+.sprint-label { font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3); }
+.sprint-title { font-size:15px;font-weight:700;color:var(--text1); }
+.sprint-title span { color:var(--indigo); }
+.sprint-grid { display:flex;align-items:center;gap:24px;flex-wrap:wrap; }
+.sprint-stat { display:flex;flex-direction:column;align-items:center;gap:2px; }
+.sprint-num { font-family:var(--mono);font-size:22px;font-weight:700; }
+.sprint-num.green { color:var(--green); }
+.sprint-num.amber { color:var(--amber); }
+.sprint-num.red   { color:var(--red); }
+.sprint-cap { font-size:11px;color:var(--text3); }
+.sprint-bar-wrap { margin-top:12px;width:100%;flex-basis:100%; }
+.sprint-bar-track { height:4px;background:var(--border);border-radius:2px;overflow:hidden; }
+.sprint-bar-fill  { height:100%;background:var(--grad-indigo);border-radius:2px;transition:width 1s ease; }
+.sprint-bar-label { display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:5px; }
+
+/* ── Tabs ── */
+.tabs { display:flex;gap:4px;margin-bottom:20px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:4px; }
+.tab { flex:1;padding:8px;text-align:center;font-size:13px;font-weight:600;color:var(--text3);border-radius:8px;transition:all .2s;cursor:pointer; }
+.tab.active { background:var(--card);color:var(--text1);box-shadow:0 2px 8px rgba(0,0,0,.3); }
+
+/* ── Board card ── */
+.board-card {
+  background:linear-gradient(180deg,rgba(17,24,39,.8) 0%,rgba(13,19,32,.8) 100%);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03) inset;
+}
+.board-head {
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.board-head-title { font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.5px;text-transform:uppercase; }
+.board-refresh { font-family:var(--mono);font-size:10px;color:var(--text3); }
+
+/* ── Table ── */
+.board-table { width:100%;border-collapse:collapse; }
+.board-table th {
+  padding:10px 16px;text-align:left;
+  font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);
+  border-bottom:1px solid var(--border);
+  background:rgba(13,19,32,.5);
+}
+.board-table th:last-child { text-align:right; }
+.board-table td { padding:13px 16px;border-bottom:1px solid rgba(30,41,59,.5);vertical-align:middle; }
+.board-table tr:last-child td { border-bottom:none; }
+.board-table tr { transition:background .15s; }
+.board-table tbody tr:hover { background:rgba(99,102,241,.05); }
+
+/* Rank cell */
+.rank-cell { display:flex;align-items:center;gap:10px; }
+.rank-num {
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:12px;font-weight:700;
+  background:var(--bg2);border:1px solid var(--border);color:var(--text3);
+  flex-shrink:0;
+}
+.rank-num.gold   { background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.4);color:var(--gold); }
+.rank-num.silver { background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.3);color:var(--silver); }
+.rank-num.bronze { background:rgba(205,124,47,.15);border-color:rgba(205,124,47,.35);color:var(--bronze); }
+.rank-num.beta   { background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.35);color:var(--indigo); }
+
+/* Callsign */
+.cs { font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text1); }
+.cs-sub { font-size:11px;color:var(--text3);margin-top:1px; }
+
+/* Score */
+.score-cell { text-align:right; }
+.score-pts { font-family:var(--mono);font-size:15px;font-weight:700;color:var(--amber); }
+.score-sub  { font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:1px; }
+
+/* Streak */
+.streak-pill { display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11px;background:var(--amber-bg);border:1px solid rgba(251,191,36,.2);color:var(--amber);padding:3px 8px;border-radius:6px; }
+
+/* Beta badge */
+.beta-badge {
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.5px;
+  background:var(--indigo-bg);border:1px solid rgba(99,102,241,.3);
+  color:var(--indigo);padding:3px 8px;border-radius:6px;white-space:nowrap;
+}
+
+/* Loading / empty states */
+.board-msg {
+  padding:48px 20px;text-align:center;
+  font-family:var(--mono);font-size:13px;color:var(--text3);
+}
+.board-msg .spinner { width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--indigo);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ── Your rank box ── */
+.your-rank {
+  margin-top:16px;
+  background:rgba(99,102,241,.08);
+  border:1px solid rgba(99,102,241,.25);
+  border-radius:10px;
+  padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;
+}
+.yr-label { font-size:12px;color:var(--text2); }
+.yr-rank  { font-family:var(--mono);font-size:20px;font-weight:800;color:var(--indigo); }
+.yr-pts   { font-family:var(--mono);font-size:13px;color:var(--text3); }
+.yr-cta   { font-size:13px;font-weight:600;color:var(--indigo);white-space:nowrap; }
+.yr-cta:hover { text-decoration:underline; }
+
+/* ── Play button ── */
+.play-row { text-align:center;margin-top:32px; }
+.play-btn {
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--grad-indigo);color:#fff;
+  padding:13px 28px;border-radius:10px;
+  font-size:15px;font-weight:700;
+  transition:opacity .2s,transform .2s;
+  box-shadow:0 0 30px rgba(99,102,241,.35);
+}
+.play-btn:hover { opacity:.88;transform:translateY(-2px); }
+
+/* ── No supabase notice ── */
+.sb-notice {
+  background:var(--amber-bg);border:1px solid rgba(251,191,36,.2);
+  border-radius:var(--r);padding:14px 18px;
+  font-size:13px;color:var(--text2);margin-bottom:20px;display:none;
+}
+.sb-notice strong { color:var(--amber); }
+
+/* ── Top 3 podium ── */
+.podium { display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:24px; }
+.podium-item {
+  background:linear-gradient(180deg,rgba(17,24,39,.8),rgba(13,19,32,.8));
+  border:1px solid var(--border);border-radius:14px;
+  padding:20px 16px;text-align:center;
+  position:relative;overflow:hidden;
+  transition:border-color .2s;
+}
+.podium-item.p1 { border-color:rgba(245,158,11,.35);box-shadow:0 0 30px rgba(245,158,11,.1); }
+.podium-item.p2 { border-color:rgba(148,163,184,.2); }
+.podium-item.p3 { border-color:rgba(205,124,47,.25); }
+.podium-crown { font-size:28px;margin-bottom:8px;display:block; }
+.podium-cs { font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text1);margin-bottom:4px; }
+.podium-pts { font-family:var(--mono);font-size:20px;font-weight:800;margin-bottom:4px; }
+.podium-pts.gold   { color:var(--gold); }
+.podium-pts.silver { color:var(--silver); }
+.podium-pts.bronze { color:var(--bronze); }
+.podium-streak { font-size:11px;color:var(--text3); }
+@media(max-width:500px) { .podium { grid-template-columns:1fr; } }
+
+/* ── Refresh countdown ── */
+.refresh-line { font-family:var(--mono);font-size:10px;color:var(--text3);text-align:right;margin-bottom:6px; }
+</style>
+</head>
+<body>
+
+<div class="orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+<div class="grid-overlay"></div>
+
+<!-- Nav -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="logo-icon">🤖</div>
+      <span>Crack The Bot</span>
+    </div>
+    <div class="nav-center">
+      <div class="nav-stats" id="nav-stats">
+        <div class="live-pip"></div>
+        <span class="nav-stat">WR <em class="g" id="n-wr">—</em></span>
+        <span class="nav-stat">PnL <em class="g" id="n-pnl">—</em></span>
+        <span class="nav-stat">Trades <em class="a" id="n-trades">—</em></span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <!-- VT_WALLET_SLOT -->
+      <a href="index.html" class="nav-link">← Play Today</a>
+      <a href="leaderboard.html" class="nav-link active">Leaderboard</a>
+      <a href="https://hyperforge.ai" target="_blank" class="nav-link nav-cta">Get Beta Access</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-tag">Global Rankings</div>
+    <h1 class="hero-title">The <span>Leaderboard</span></h1>
+    <p class="hero-sub">First 20 players with the most points win HyperForge Beta access.</p>
+  </div>
+
+  <!-- Sprint status -->
+  <div class="sprint-card">
+    <div class="sprint-left">
+      <div class="sprint-label">Beta Sprint</div>
+      <div class="sprint-title">Apr 11 → May 11, 2026 &nbsp;·&nbsp; <span id="days-left">—</span> days remaining</div>
+    </div>
+    <div class="sprint-grid">
+      <div class="sprint-stat">
+        <div class="sprint-num green" id="spots-taken">—</div>
+        <div class="sprint-cap">spots claimed</div>
+      </div>
+      <div class="sprint-stat">
+        <div class="sprint-num amber" id="spots-left">—</div>
+        <div class="sprint-cap">spots left</div>
+      </div>
+      <div class="sprint-stat">
+        <div class="sprint-num" id="total-players" style="color:var(--text2)">—</div>
+        <div class="sprint-cap">total players</div>
+      </div>
+    </div>
+    <div class="sprint-bar-wrap">
+      <div class="sprint-bar-track">
+        <div class="sprint-bar-fill" id="sprint-bar" style="width:0%"></div>
+      </div>
+      <div class="sprint-bar-label">
+        <span>Apr 11</span>
+        <span id="sprint-pct">0% of sprint</span>
+        <span>May 11</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase not configured notice -->
+  <div class="sb-notice" id="sb-notice">
+    <strong>Demo mode:</strong> Supabase not configured — showing sample data. Add your SUPABASE_URL + SUPABASE_KEY to go live.
+  </div>
+
+  <!-- Today's top 3 podium -->
+  <div class="podium" id="podium" style="display:none"></div>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs">
+    <button class="tab active" onclick="switchTab('today')">Today's Puzzle</button>
+    <button class="tab" onclick="switchTab('alltime')">All-Time</button>
+  </div>
+
+  <div class="refresh-line">Refreshes every 30s &nbsp;·&nbsp; Last updated: <span id="last-updated">—</span></div>
+
+  <!-- Board -->
+  <div class="board-card" id="board-card">
+    <div class="board-head">
+      <div class="board-head-title" id="board-title">Today — <span id="board-date">—</span></div>
+      <div class="board-refresh" id="board-count">—</div>
+    </div>
+    <div id="board-body">
+      <div class="board-msg"><div class="spinner"></div>Loading signals…</div>
+    </div>
+  </div>
+
+  <!-- Your rank -->
+  <div class="your-rank" id="your-rank" style="display:none">
+    <div>
+      <div class="yr-label">Your position</div>
+      <div class="yr-rank" id="yr-rank-num">—</div>
+    </div>
+    <div class="yr-pts" id="yr-pts-line">—</div>
+    <a href="index.html" class="yr-cta">Play today's puzzle →</a>
+  </div>
+
+  <!-- CTA -->
+  <div class="play-row">
+    <a href="index.html" class="play-btn">🕵️ Play Today's Puzzle</a>
+  </div>
+
+</div>
+
+<div style="max-width:900px;margin:0 auto;padding:0 20px 48px;text-align:center;">
+  <p style="font-size:11px;color:var(--text3);line-height:1.7;border-top:1px solid var(--border);padding-top:20px;">
+    <strong style="color:var(--text2)">Not financial advice.</strong>
+    Crack The Bot is an educational puzzle game based on an ongoing personal trading experiment.
+    All performance metrics shown are real but reflect past results only — past performance does not guarantee future returns.
+    The described trading bot operates on a live account with real funds at significant risk.
+    Nothing on this site constitutes financial advice, investment advice, or a solicitation to trade.
+    Crypto and perpetual futures trading carries substantial risk of loss and is not suitable for all investors.
+    <strong style="color:var(--text2)">Never trade money you cannot afford to lose.</strong>
+  </p>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+// CONFIG  — paste your own values from Supabase dashboard
+// ─────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://pugmrupmlxckmrlcuzby.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_pEhpLWsASpjHABotE1eYeg_YoS_H32C';
+const SB_ON = true;
+
+const STATS_API  = 'http://155.248.237.104:5051/api/hyperforge/live-stats';
+const LAUNCH     = new Date('2026-04-11T00:00:00Z');
+const END_DATE   = new Date('2026-05-11T00:00:00Z');
+const BETA_SPOTS = 20;
+
+// ─────────────────────────────────────────────────────────────────
+// SUPABASE HELPERS
+// ─────────────────────────────────────────────────────────────────
+const H = () => ({ 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' });
+async function sbFetch(path, opts = {}) {
+  if (!SB_ON) return null;
+  try {
+    const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, { headers: H(), ...opts });
+    if (!r.ok) return null;
+    const t = await r.text();
+    return t ? JSON.parse(t) : null;
+  } catch { return null; }
+}
+
+// No sample data — show real results only
+
+// ─────────────────────────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────────────────────────
+function todayKey() {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+}
+
+function getLS(k, def) {
+  try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : def; } catch { return def; }
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso + 'T00:00:00Z');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+}
+
+function fmtTime(d) {
+  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'America/New_York' }) + ' EDT';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────
+let currentTab = 'today';
+let boardData = [];
+
+// ─────────────────────────────────────────────────────────────────
+// TAB SWITCH
+// ─────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'today') || (i === 1 && tab === 'alltime'));
+  });
+  loadBoard();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// LOAD BOARD
+// ─────────────────────────────────────────────────────────────────
+async function loadBoard() {
+  const today = todayKey();
+  document.getElementById('board-date').textContent = fmtDate(today);
+  document.getElementById('board-title').textContent =
+    currentTab === 'today' ? `Today — ${fmtDate(today)}` : 'All-Time Rankings';
+
+  document.getElementById('board-body').innerHTML =
+    '<div class="board-msg"><div class="spinner"></div>Loading signals…</div>';
+
+  let rows;
+  if (SB_ON) {
+    if (currentTab === 'today') {
+      rows = await sbFetch(`ctb_scores?puzzle_date=eq.${today}&order=score.desc&limit=50`);
+    } else {
+      // All-time: aggregate by call_sign, sum scores
+      rows = await sbFetch(`ctb_scores?order=score.desc&limit=200`);
+      if (rows) rows = aggregateAllTime(rows);
+    }
+  }
+
+  if (!rows) rows = [];
+
+  boardData = rows;
+  renderBoard(rows);
+  renderPodium(rows.slice(0, 3));
+  renderYourRank(rows);
+  updateSprintStats(rows);
+  document.getElementById('last-updated').textContent = fmtTime(new Date());
+  document.getElementById('board-count').textContent = `${rows.length} player${rows.length !== 1 ? 's' : ''}`;
+}
+
+// Aggregate all-time: sum scores per call_sign
+function aggregateAllTime(rows) {
+  const map = {};
+  for (const r of rows) {
+    if (!map[r.call_sign]) {
+      map[r.call_sign] = { call_sign: r.call_sign, score: 0, day_streak: r.day_streak || 0, cracked: 0, days_played: 0 };
+    }
+    map[r.call_sign].score += r.score;
+    map[r.call_sign].cracked += (r.cracked || 0);
+    map[r.call_sign].days_played += 1;
+    if ((r.day_streak || 0) > map[r.call_sign].day_streak) map[r.call_sign].day_streak = r.day_streak;
+  }
+  return Object.values(map).sort((a, b) => b.score - a.score);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// RENDER BOARD
+// ─────────────────────────────────────────────────────────────────
+function rankClass(i) {
+  if (i === 0) return 'gold';
+  if (i === 1) return 'silver';
+  if (i === 2) return 'bronze';
+  if (i < BETA_SPOTS) return 'beta';
+  return '';
+}
+
+function renderBoard(rows) {
+  if (!rows || rows.length === 0) {
+    document.getElementById('board-body').innerHTML =
+      '<div class="board-msg">No scores yet today — be the first to play!</div>';
+    return;
+  }
+
+  const isAllTime = currentTab === 'alltime';
+
+  let html = `<table class="board-table">
+    <thead><tr>
+      <th>#</th>
+      <th>Call Sign</th>
+      <th>${isAllTime ? 'Days Played' : 'Cracked'}</th>
+      <th>Streak</th>
+      <th>Score</th>
+    </tr></thead><tbody>`;
+
+  rows.forEach((r, i) => {
+    const rc = rankClass(i);
+    const betaBadge = i < BETA_SPOTS ? '<div class="beta-badge">🔮 Beta</div>' : '';
+    const crackedOrDays = isAllTime
+      ? `<span style="font-family:var(--mono);font-size:12px;color:var(--text2)">${r.days_played || 1}d</span>`
+      : `<span style="font-family:var(--mono);font-size:12px;color:var(--text2)">${r.cracked ?? '—'}/5</span>`;
+    const streak = r.day_streak >= 3
+      ? `<span class="streak-pill">🔥 ${r.day_streak}</span>`
+      : `<span style="font-family:var(--mono);font-size:12px;color:var(--text3)">${r.day_streak ?? 1}d</span>`;
+
+    html += `<tr>
+      <td>
+        <div class="rank-cell">
+          <div class="rank-num ${rc}">${i + 1}</div>
+          ${betaBadge}
+        </div>
+      </td>
+      <td>
+        <div class="cs">${escHtml(r.call_sign)}</div>
+      </td>
+      <td>${crackedOrDays}</td>
+      <td>${streak}</td>
+      <td class="score-cell">
+        <div class="score-pts">${r.score.toLocaleString()}</div>
+      </td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('board-body').innerHTML = html;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PODIUM (top 3)
+// ─────────────────────────────────────────────────────────────────
+const CROWNS = ['🥇', '🥈', '🥉'];
+const PODIUM_CLS = ['gold', 'silver', 'bronze'];
+const PODIUM_CARD_CLS = ['p1', 'p2', 'p3'];
+
+function renderPodium(top3) {
+  const el = document.getElementById('podium');
+  if (!top3 || top3.length === 0) { el.style.display = 'none'; return; }
+  el.style.display = 'grid';
+  el.innerHTML = top3.map((r, i) => `
+    <div class="podium-item ${PODIUM_CARD_CLS[i]}">
+      <span class="podium-crown">${CROWNS[i]}</span>
+      <div class="podium-cs">${escHtml(r.call_sign)}</div>
+      <div class="podium-pts ${PODIUM_CLS[i]}">${r.score.toLocaleString()}</div>
+      <div class="podium-streak">${r.day_streak >= 3 ? `🔥 ${r.day_streak}-day streak` : `${r.day_streak ?? 1}-day streak`}</div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────────────────────────
+// YOUR RANK
+// ─────────────────────────────────────────────────────────────────
+function renderYourRank(rows) {
+  const myCS = getLS('ctb_callsign', null);
+  const el = document.getElementById('your-rank');
+  if (!myCS) { el.style.display = 'none'; return; }
+
+  const idx = rows.findIndex(r => r.call_sign === myCS);
+  if (idx === -1) { el.style.display = 'none'; return; }
+
+  el.style.display = 'flex';
+  document.getElementById('yr-rank-num').textContent = `#${idx + 1}`;
+  document.getElementById('yr-pts-line').textContent =
+    `${rows[idx].score.toLocaleString()} pts · ${idx < BETA_SPOTS ? '✅ Inside top ' + BETA_SPOTS : `${idx + 1 - BETA_SPOTS} spots from beta`}`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SPRINT STATS
+// ─────────────────────────────────────────────────────────────────
+function updateSprintStats(rows) {
+  const totalPlayers = rows.length;
+  const spotsClaimed = Math.min(totalPlayers, BETA_SPOTS);
+  const spotsLeft = Math.max(0, BETA_SPOTS - totalPlayers);
+
+  document.getElementById('spots-taken').textContent = spotsClaimed;
+  document.getElementById('spots-left').textContent = spotsLeft;
+  document.getElementById('total-players').textContent = totalPlayers;
+
+  const elapsed = Date.now() - LAUNCH.getTime();
+  const total = END_DATE.getTime() - LAUNCH.getTime();
+  const pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+  document.getElementById('sprint-bar').style.width = pct.toFixed(1) + '%';
+  document.getElementById('sprint-pct').textContent = pct.toFixed(0) + '% of sprint';
+
+  const daysLeft = Math.max(0, Math.ceil((END_DATE - Date.now()) / 86400000));
+  const daysEl = document.getElementById('days-left');
+  if (daysLeft <= 0) {
+    daysEl.textContent = '0';
+    daysEl.closest('.sprint-title').innerHTML = 'Sprint ended — top 20 have been notified';
+  } else {
+    daysEl.textContent = daysLeft;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// LIVE STATS
+// ─────────────────────────────────────────────────────────────────
+async function fetchStats() {
+  try {
+    const d = await (await fetch(STATS_API)).json();
+    document.getElementById('n-wr').textContent = d.combined_win_rate.toFixed(1) + '%';
+    document.getElementById('n-pnl').textContent = (d.sum_pnl_pct >= 0 ? '+' : '') + d.sum_pnl_pct.toFixed(2) + '%';
+    document.getElementById('n-trades').textContent = d.combined_trade_count;
+  } catch {}
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ESCAPE
+// ─────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─────────────────────────────────────────────────────────────────
+// NAV SCROLL
+// ─────────────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 10);
+}, { passive: true });
+
+// ─────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────
+loadBoard();
+fetchStats();
+setInterval(fetchStats, 5000);
+setInterval(loadBoard, 30000);
+</script>
+</body>
+</html>

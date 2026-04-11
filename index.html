@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crack The Bot — Daily Puzzle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:          #080C14;
+  --bg2:         #0D1320;
+  --card:        #111827;
+  --card-hover:  #1a2235;
+  --border:      #1e293b;
+  --border-light:#334155;
+  --text1:       #f1f5f9;
+  --text2:       #94a3b8;
+  --text3:       #64748b;
+  --indigo:      #818cf8;
+  --indigo-dim:  #6366f1;
+  --indigo-bg:   rgba(99,102,241,0.12);
+  --green:       #34d399;
+  --green-dim:   #10b981;
+  --green-bg:    rgba(16,185,129,0.12);
+  --amber:       #fbbf24;
+  --amber-bg:    rgba(251,191,36,0.10);
+  --red:         #fb7185;
+  --red-bg:      rgba(251,113,133,0.10);
+  --cyan:        #22d3ee;
+  --grad-indigo: linear-gradient(135deg,#6366f1,#818cf8);
+  --grad-green:  linear-gradient(135deg,#10b981,#34d399);
+  --mono:        'JetBrains Mono', monospace;
+  --sans:        'Inter', sans-serif;
+  --r:           10px;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; -webkit-font-smoothing:antialiased; }
+body { font-family:var(--sans); background:var(--bg); color:var(--text1); line-height:1.6; overflow-x:hidden; min-height:100vh; }
+button { font:inherit; cursor:pointer; border:0; background:none; color:inherit; }
+input,textarea { font:inherit; }
+
+/* ── Ambient ── */
+.orbs { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+.orb  { position:absolute; border-radius:50%; filter:blur(90px); mix-blend-mode:screen; will-change:transform; }
+.orb1 { width:560px;height:560px;background:radial-gradient(circle,#6366f1 0%,transparent 70%);top:-120px;left:-120px;opacity:.45;animation:od1 26s ease-in-out infinite alternate; }
+.orb2 { width:420px;height:420px;background:radial-gradient(circle,#22d3ee 0%,transparent 70%);top:40%;right:-100px;opacity:.28;animation:od2 32s ease-in-out infinite alternate; }
+.orb3 { width:500px;height:500px;background:radial-gradient(circle,#10b981 0%,transparent 70%);bottom:-160px;left:28%;opacity:.22;animation:od3 38s ease-in-out infinite alternate; }
+@keyframes od1 { 0%{transform:translate(0,0) scale(1)} 50%{transform:translate(70px,40px) scale(1.07)} 100%{transform:translate(-40px,80px) scale(0.95)} }
+@keyframes od2 { 0%{transform:translate(0,0) scale(1)} 50%{transform:translate(-55px,55px) scale(1.1)} 100%{transform:translate(-20px,-38px) scale(0.93)} }
+@keyframes od3 { 0%{transform:translate(0,0) scale(1)} 50%{transform:translate(65px,-45px) scale(1.05)} 100%{transform:translate(-28px,38px) scale(0.96)} }
+
+.grid-overlay {
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(99,102,241,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.04) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 0%,transparent 70%);
+}
+
+/* ── Nav ── */
+.nav {
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:14px 0;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  background:rgba(8,12,20,.75);
+  border-bottom:1px solid transparent;
+  transition:border-color .3s,background .3s;
+}
+.nav.scrolled { border-bottom-color:var(--border);background:rgba(8,12,20,.94); }
+.nav-inner { max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative; }
+.nav-logo { font-family:var(--mono);font-weight:700;font-size:16px;display:flex;align-items:center;gap:10px;flex-shrink:0; }
+.logo-icon { width:30px;height:30px;background:var(--grad-indigo);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px; }
+.nav-center { position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center; }
+.nav-right { display:flex;align-items:center;gap:20px; }
+.nav-link { font-size:13px;font-weight:500;color:var(--text2);transition:color .2s; }
+.nav-link:hover { color:var(--text1); }
+.nav-stats { display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:11px;color:var(--text3); }
+.live-pip { width:6px;height:6px;border-radius:50%;background:var(--green);animation:live 1.8s ease-in-out infinite; flex-shrink:0; }
+@keyframes live { 0%{box-shadow:0 0 0 0 rgba(52,211,153,.6)} 60%{box-shadow:0 0 0 6px rgba(52,211,153,0)} 100%{box-shadow:0 0 0 0 rgba(52,211,153,0)} }
+.nav-stat { color:var(--text2); }
+.nav-stat em { font-style:normal; }
+.nav-stat em.g { color:var(--green); }
+.nav-stat em.a { color:var(--amber); }
+.nav-cta { background:var(--grad-indigo);color:#fff;padding:8px 16px;border-radius:8px;font-weight:600;font-size:13px;transition:opacity .2s,transform .2s;white-space:nowrap; }
+.nav-cta:hover { opacity:.88;transform:translateY(-1px); }
+@media(max-width:680px) { .nav-center,.nav-link:not(.nav-cta){display:none;} }
+
+/* ── Page wrapper ── */
+.page { position:relative;z-index:1;max-width:760px;margin:0 auto;padding:88px 20px 60px; }
+
+/* ── Beta sprint banner ── */
+.sprint-banner {
+  background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(34,211,238,.08));
+  border:1px solid rgba(99,102,241,.3);
+  border-radius:var(--r);
+  padding:12px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+.sprint-left { display:flex;align-items:center;gap:10px; }
+.sprint-trophy { font-size:18px; }
+.sprint-text { font-size:13px;color:var(--text1);font-weight:500; }
+.sprint-text span { color:var(--indigo); }
+.sprint-right { display:flex;align-items:center;gap:8px; }
+.sprint-countdown { font-family:var(--mono);font-size:12px;color:var(--amber);background:var(--amber-bg);border:1px solid rgba(251,191,36,.2);padding:4px 10px;border-radius:6px;white-space:nowrap; }
+.sprint-spots { font-family:var(--mono);font-size:11px;color:var(--text3); }
+
+/* ── Game card ── */
+.game-card {
+  background:linear-gradient(180deg,rgba(17,24,39,.8) 0%,rgba(13,19,32,.8) 100%);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.03) inset;
+}
+
+/* Card header */
+.card-head {
+  padding:18px 24px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;
+}
+.puzzle-id { font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:1px;text-transform:uppercase; }
+.puzzle-id em { color:var(--indigo);font-style:normal; }
+.card-head-right { display:flex;align-items:center;gap:16px; }
+.streak-badge { font-family:var(--mono);font-size:11px;background:var(--amber-bg);border:1px solid rgba(251,191,36,.2);color:var(--amber);padding:3px 9px;border-radius:6px; }
+.pts-badge { font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text1); }
+.pts-badge em { color:var(--amber);font-style:normal; }
+
+/* Progress pips */
+.pips-row { display:flex;align-items:center;gap:6px;padding:12px 24px;border-bottom:1px solid var(--border); }
+.pip-label { font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-right:6px;white-space:nowrap; }
+.pip {
+  width:26px;height:26px;border-radius:50%;
+  border:1.5px solid var(--border-light);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text3);
+  transition:all .35s cubic-bezier(.16,1,.3,1);
+}
+.pip.correct { background:var(--green-bg);border-color:var(--green-dim);color:var(--green);transform:scale(1.1); }
+.pip.wrong   { background:var(--red-bg);border-color:var(--red);color:var(--red); }
+.pips-right  { margin-left:auto;display:flex;align-items:center;gap:10px; }
+.q-counter   { font-family:var(--mono);font-size:11px;color:var(--text3); }
+
+/* Timer bar */
+.timer-track { height:2px;background:var(--border); }
+.timer-fill  { height:100%;background:var(--grad-indigo);width:100%;transition:width linear; }
+.timer-fill.urgent { background:linear-gradient(90deg,#ef4444,#fb7185); }
+
+/* Card body */
+.card-body { padding:20px 24px; }
+
+/* Section label */
+.slabel { font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;display:block; }
+
+/* Clues */
+.clues-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px; }
+.clue-card  {
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;position:relative;
+  opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s;
+}
+.clue-card.vis { opacity:1;transform:translateY(0); }
+.clue-card.locked { opacity:.5; }
+.clue-card.locked .clue-body { filter:blur(4px);user-select:none; }
+.clue-tag  { font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--indigo);margin-bottom:5px; }
+.clue-body { font-size:12px;color:var(--text2);line-height:1.55; }
+.clue-n    { position:absolute;top:8px;right:10px;font-family:var(--mono);font-size:16px;font-weight:700;color:var(--border-light); }
+.clue-lock { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:18px;opacity:.4; }
+
+/* Signal box */
+.signal-box {
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
+  padding:18px 20px;margin-bottom:18px;position:relative;
+}
+.signal-tag {
+  position:absolute;top:-9px;left:14px;
+  background:var(--red);color:#fff;
+  font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  padding:2px 10px;border-radius:4px;
+}
+.signal-time { font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.5px;margin-bottom:8px; }
+.signal-story { font-size:13px;color:var(--text2);line-height:1.7; }
+.signal-stats { display:flex;gap:20px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap; }
+.ss-item { text-align:center; }
+.ss-val   { font-family:var(--mono);font-size:16px;font-weight:700;color:var(--amber); }
+.ss-label { font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);display:block;margin-top:2px; }
+
+/* OI visual */
+.oi-visual { display:flex;gap:16px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);align-items:flex-end; }
+.oi-col    { flex:1;text-align:center; }
+.oi-col-label { font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:6px; }
+.oi-bars   { height:36px;display:flex;align-items:flex-end;justify-content:center;gap:3px; }
+.oi-bar    { width:12px;border-radius:2px 2px 0 0; }
+.oi-bar.rise { background:var(--amber); }
+.oi-bar.flat { background:var(--border-light); }
+.oi-val    { font-family:var(--mono);font-size:11px;font-weight:600;margin-top:5px; }
+.oi-val.up { color:var(--amber); }
+.oi-val.fl { color:var(--text3); }
+
+/* Question */
+.q-box {
+  background:var(--indigo-bg);border:1px solid rgba(99,102,241,.25);
+  border-radius:var(--r);padding:14px 16px;margin-bottom:12px;
+  border-left:3px solid var(--indigo);
+}
+.q-label { font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--indigo);margin-bottom:6px; }
+.q-text  { font-size:14px;font-weight:600;color:var(--text1);line-height:1.5; }
+
+/* Answers */
+.answers { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px; }
+.ans-btn {
+  background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;font-size:12px;color:var(--text2);
+  cursor:pointer;text-align:left;transition:all .15s;line-height:1.4;
+}
+.ans-btn:hover:not(:disabled) { border-color:var(--border-light);background:var(--card);color:var(--text1); }
+.ans-btn.correct { background:var(--green-bg);border-color:var(--green-dim);color:var(--green); }
+.ans-btn.wrong   { background:var(--red-bg);border-color:var(--red);color:var(--red); }
+.ans-btn.reveal  { background:var(--green-bg);border-color:var(--green-dim); }
+.ans-btn:disabled { cursor:default; }
+
+/* Feedback */
+.feedback { display:none;font-size:12px;padding:11px 14px;border-radius:var(--r);margin-bottom:14px;line-height:1.55; }
+.feedback.ok  { background:var(--green-bg);border:1px solid rgba(16,185,129,.25);color:var(--green);display:block; }
+.feedback.bad { background:var(--red-bg);border:1px solid rgba(251,113,133,.25);color:var(--red);display:block; }
+
+/* Next btn */
+.next-btn {
+  width:100%;background:var(--grad-indigo);color:#fff;
+  padding:13px;border-radius:var(--r);
+  font-weight:700;font-size:14px;letter-spacing:.5px;
+  transition:opacity .2s,transform .2s;
+}
+.next-btn:hover:not(:disabled) { opacity:.88;transform:translateY(-1px); }
+.next-btn:disabled { opacity:.3;cursor:default;transform:none; }
+
+/* ── Results screen ── */
+.results-screen { display:none; }
+
+.results-head {
+  padding:24px 24px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:24px;
+}
+.result-stamp-wrap { flex-shrink:0;text-align:center; }
+.result-stamp {
+  font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  border:2px solid var(--green);color:var(--green);
+  padding:8px 18px;border-radius:8px;
+  display:inline-block;margin-bottom:8px;
+  transform:rotate(-3deg);
+}
+.result-stamp.fail { border-color:var(--red);color:var(--red);transform:rotate(2deg); }
+.result-score-big { font-family:var(--mono);font-size:36px;font-weight:700;color:var(--text1);line-height:1; }
+.result-score-big span { display:block;font-size:10px;font-weight:400;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:4px; }
+.result-right { flex:1; }
+.result-title { font-size:20px;font-weight:700;color:var(--text1);margin-bottom:6px; }
+.result-copy  { font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px; }
+.score-tiles  { display:flex;gap:5px;margin-bottom:4px; }
+.score-tile   { font-size:20px; }
+
+/* Beta position callout */
+.beta-callout {
+  margin:0 24px 16px;
+  background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(34,211,238,.08));
+  border:1px solid rgba(99,102,241,.3);
+  border-radius:var(--r);padding:14px 18px;
+  display:flex;align-items:center;gap:12px;
+}
+.beta-callout-icon { font-size:24px;flex-shrink:0; }
+.beta-callout-text { font-size:13px;color:var(--text1);line-height:1.5; }
+.beta-callout-text strong { color:var(--indigo); }
+
+/* Countdown box */
+.countdown-box {
+  margin:0 24px 16px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 18px;display:flex;align-items:center;justify-content:space-between;
+}
+.cd-label { font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3); }
+.cd-time   { font-family:var(--mono);font-size:24px;font-weight:700;color:var(--text1);letter-spacing:2px; }
+
+/* Leaderboard */
+.lb-wrap { margin:0 24px 16px; }
+.lb-tabs { display:flex;border-bottom:1px solid var(--border);margin-bottom:0; }
+.lb-tab  { font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:7px 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s; }
+.lb-tab.on { color:var(--indigo);border-bottom-color:var(--indigo); }
+.lb-table  { background:var(--bg2);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden; }
+.lb-head   { display:grid;grid-template-columns:28px 1fr 52px 60px;padding:7px 14px;background:rgba(0,0,0,.3);font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);gap:8px; }
+.lb-row    { display:grid;grid-template-columns:28px 1fr 52px 60px;padding:9px 14px;border-top:1px solid var(--border);align-items:center;font-size:12px;gap:8px; }
+.lb-row.you { background:rgba(99,102,241,.08); }
+.lb-rank   { font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text3); }
+.lb-rank.r1 { color:var(--amber); }
+.lb-rank.r2 { color:var(--text2); }
+.lb-rank.r3 { color:#c8905a; }
+.lb-name   { color:var(--text1);font-size:12px; }
+.lb-streak { color:var(--text3);text-align:center;font-family:var(--mono);font-size:11px; }
+.lb-pts    { font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text1);text-align:right; }
+.lb-empty  { padding:20px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3); }
+
+/* Submit row */
+.submit-wrap { margin:0 24px 16px; }
+.submit-row  { display:flex;gap:8px; }
+.callsign-input {
+  flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:10px 14px;color:var(--text1);font-family:var(--mono);font-size:12px;
+  letter-spacing:2px;text-transform:uppercase;outline:none;transition:border-color .2s;
+}
+.callsign-input:focus { border-color:var(--indigo); }
+.callsign-input::placeholder { text-transform:none;letter-spacing:0;color:var(--text3); }
+.callsign-input:disabled { opacity:.4; }
+.submit-btn {
+  background:var(--grad-indigo);color:#fff;padding:10px 18px;border-radius:var(--r);
+  font-weight:700;font-size:13px;white-space:nowrap;transition:opacity .2s;
+}
+.submit-btn:disabled { opacity:.35;cursor:default; }
+
+/* Result actions */
+.result-actions { display:flex;gap:10px;flex-wrap:wrap;padding:0 24px 24px; }
+.r-btn {
+  flex:1;min-width:120px;padding:12px 16px;border-radius:var(--r);
+  font-weight:700;font-size:13px;text-align:center;transition:all .2s;
+}
+.r-btn.primary { background:var(--grad-indigo);color:#fff; }
+.r-btn.primary:hover { opacity:.88;transform:translateY(-1px); }
+.r-btn.ghost   { background:transparent;border:1px solid var(--border);color:var(--text2); }
+.r-btn.ghost:hover { border-color:var(--border-light);color:var(--text1); }
+.r-btn.lb-btn  { background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);color:var(--indigo); }
+.r-btn.lb-btn:hover { background:rgba(99,102,241,.2); }
+
+/* ── Social Share ── */
+.social-share { padding:0 24px 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+.social-label { font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-right:4px; }
+.social-btn {
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 14px;border-radius:8px;font-size:12px;font-weight:600;
+  transition:all .18s;cursor:pointer;border:1px solid;flex-shrink:0;
+}
+.social-btn svg { width:15px;height:15px;flex-shrink:0; }
+.social-btn.x-btn   { background:rgba(0,0,0,.4);border-color:rgba(255,255,255,.15);color:var(--text1); }
+.social-btn.x-btn:hover { background:rgba(255,255,255,.08);transform:translateY(-1px); }
+.social-btn.fb-btn  { background:rgba(24,119,242,.15);border-color:rgba(24,119,242,.4);color:#4a9eff; }
+.social-btn.fb-btn:hover { background:rgba(24,119,242,.25);transform:translateY(-1px); }
+.social-btn.ig-btn  { background:rgba(225,48,108,.12);border-color:rgba(225,48,108,.35);color:#f77737; }
+.social-btn.ig-btn:hover { background:rgba(225,48,108,.22);transform:translateY(-1px); }
+.social-btn.tt-btn  { background:rgba(255,0,80,.1);border-color:rgba(255,0,80,.3);color:#ff2d55; }
+.social-btn.tt-btn:hover { background:rgba(255,0,80,.2);transform:translateY(-1px); }
+
+/* ── Disclaimer ── */
+.disclaimer {
+  max-width:760px;margin:32px auto 0;padding:0 20px 40px;
+  text-align:center;
+}
+.disclaimer-text {
+  font-size:11px;color:var(--text3);line-height:1.7;
+  border-top:1px solid var(--border);padding-top:20px;
+}
+
+/* ── TIMEOUT MODAL ── */
+.modal-overlay {
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.show { display:flex; }
+.modal-card {
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:36px 32px;max-width:380px;width:100%;text-align:center;
+  box-shadow:0 40px 100px -20px rgba(0,0,0,.8);
+  animation:modal-in .3s cubic-bezier(.16,1,.3,1);
+}
+@keyframes modal-in { from{opacity:0;transform:scale(.92) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.modal-icon  { font-size:48px;margin-bottom:16px; }
+.modal-title { font-family:var(--mono);font-size:20px;font-weight:700;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px; }
+.modal-text  { font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:24px; }
+.modal-retry {
+  background:var(--grad-indigo);color:#fff;padding:12px 28px;border-radius:var(--r);
+  font-weight:700;font-size:14px;letter-spacing:.5px;
+  transition:opacity .2s,transform .2s;display:inline-block;
+}
+.modal-retry:hover { opacity:.88;transform:translateY(-1px); }
+
+/* ── Sprint over screen ── */
+.sprint-over {
+  display:none;text-align:center;
+  padding:48px 24px;
+}
+.so-stamp  { font-family:var(--mono);font-size:48px;font-weight:700;letter-spacing:4px;color:var(--amber);margin-bottom:8px; }
+.so-sub    { font-size:13px;color:var(--text2);margin-bottom:32px;line-height:1.7; }
+
+/* Toast */
+.toast {
+  position:fixed;bottom:24px;right:24px;z-index:300;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:10px 18px;font-family:var(--mono);font-size:12px;color:var(--text1);
+  opacity:0;transform:translateY(8px);transition:all .25s;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+  pointer-events:none;
+}
+.toast.show { opacity:1;transform:translateY(0); }
+
+/* Animations */
+@keyframes shake {
+  0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)}
+}
+.shake { animation:shake .4s ease; }
+
+@keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
+.pop { animation:pop .3s ease; }
+</style>
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+<div class="grid-overlay"></div>
+
+<!-- Timeout modal -->
+<div class="modal-overlay" id="timeout-modal">
+  <div class="modal-card">
+    <div class="modal-icon">⏱</div>
+    <div class="modal-title">Signal Expired</div>
+    <div class="modal-text">Too slow, detective.<br>You had 30 seconds to read the signal.<br>The window has closed.</div>
+    <button class="modal-retry" onclick="retryQuestion()">Retry Signal →</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Nav -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="logo-icon">⬛</div>
+      CRACK THE BOT
+    </div>
+    <div class="nav-center">
+      <div class="nav-stats">
+        <div class="live-pip"></div>
+        <span class="nav-stat">WR <em class="a" id="n-wr">—</em></span>
+        <span class="nav-stat">PnL <em class="g" id="n-pnl">—</em></span>
+        <span class="nav-stat"><em id="n-trades">—</em> trades</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <!-- VT_WALLET_SLOT -->
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+      <a href="https://hyperforge.app" target="_blank" class="nav-cta">Get Beta Access</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- Beta sprint banner -->
+  <div class="sprint-banner">
+    <div class="sprint-left">
+      <div class="sprint-trophy">🏆</div>
+      <div class="sprint-text">
+        First <span>20 players</span> with the most points win early access to <span>HyperForge Beta</span>
+      </div>
+    </div>
+    <div class="sprint-right">
+      <div class="sprint-countdown" id="sprint-cd">— days left</div>
+      <div class="sprint-spots">20 spots</div>
+    </div>
+  </div>
+
+  <!-- Game card -->
+  <div class="game-card" id="game-card">
+
+    <!-- Card header -->
+    <div class="card-head">
+      <div class="puzzle-id">Puzzle <em id="p-num">#—</em> · <span id="p-date">—</span></div>
+      <div class="card-head-right">
+        <div class="streak-badge" id="streak-badge">Day — streak</div>
+        <div class="pts-badge">PTS <em id="pts-val">0</em></div>
+      </div>
+    </div>
+
+    <!-- Pips -->
+    <div class="pips-row">
+      <span class="pip-label">Today</span>
+      <div class="pip" id="pip1">1</div>
+      <div class="pip" id="pip2">2</div>
+      <div class="pip" id="pip3">3</div>
+      <div class="pip" id="pip4">4</div>
+      <div class="pip" id="pip5">5</div>
+      <div class="pips-right">
+        <span class="q-counter" id="q-counter">1 / 5</span>
+      </div>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
+
+    <!-- Game screen -->
+    <div id="game-screen">
+      <div class="card-body">
+
+        <!-- Clues -->
+        <span class="slabel">Evidence collected</span>
+        <div class="clues-grid" id="clues-grid"></div>
+
+        <!-- Signal -->
+        <div class="signal-box" id="signal-box"></div>
+
+        <!-- Question -->
+        <div class="q-box">
+          <div class="q-label">🔍 Your prediction</div>
+          <div class="q-text" id="q-text"></div>
+        </div>
+
+        <!-- Answers -->
+        <div class="answers" id="answers"></div>
+
+        <!-- Feedback -->
+        <div class="feedback" id="feedback"></div>
+
+        <!-- Next -->
+        <button class="next-btn" id="next-btn" disabled onclick="nextQuestion()">Next Signal →</button>
+      </div>
+    </div>
+
+    <!-- Results screen -->
+    <div class="results-screen" id="results-screen">
+
+      <div class="results-head">
+        <div class="result-stamp-wrap">
+          <div class="result-stamp" id="r-stamp">CRACKED</div>
+          <div class="result-score-big" id="r-score">0<span>points</span></div>
+        </div>
+        <div class="result-right">
+          <div class="result-title" id="r-title">You figured it out.</div>
+          <div class="result-copy" id="r-copy"></div>
+          <div class="score-tiles" id="score-tiles"></div>
+        </div>
+      </div>
+
+      <!-- Beta callout -->
+      <div class="beta-callout" id="beta-callout">
+        <div class="beta-callout-icon">🏆</div>
+        <div class="beta-callout-text" id="beta-callout-text">Loading your rank...</div>
+      </div>
+
+      <!-- Countdown to next puzzle -->
+      <div class="countdown-box">
+        <div class="cd-label">Next puzzle in</div>
+        <div class="cd-time" id="cd-next">--:--:--</div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="lb-wrap">
+        <div class="lb-tabs">
+          <button class="lb-tab on" onclick="switchTab('today')" id="tab-today">Today</button>
+          <button class="lb-tab"    onclick="switchTab('alltime')" id="tab-alltime">All Time</button>
+        </div>
+        <div id="lb-content"></div>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-wrap">
+        <span class="slabel">Save your score</span>
+        <div class="submit-row">
+          <input class="callsign-input" id="callsign" maxlength="10" placeholder="Enter call sign (e.g. GHOST_7)" />
+          <button class="submit-btn" id="submit-btn" onclick="submitScore()">Post Score</button>
+        </div>
+      </div>
+
+      <!-- Social Share -->
+      <div class="social-share">
+        <span class="social-label">Share</span>
+        <button class="social-btn x-btn" onclick="shareTo('x')" title="Share on X">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X / Twitter
+        </button>
+        <button class="social-btn fb-btn" onclick="shareTo('fb')" title="Share on Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+        <button class="social-btn ig-btn" onclick="shareTo('ig')" title="Copy for Instagram">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          Instagram
+        </button>
+        <button class="social-btn tt-btn" onclick="shareTo('tt')" title="Copy for TikTok">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.09a8.16 8.16 0 004.77 1.52V7.15a4.85 4.85 0 01-1-.46z"/></svg>
+          TikTok
+        </button>
+      </div>
+
+      <!-- Actions -->
+      <div class="result-actions">
+        <a href="leaderboard.html" class="r-btn lb-btn">Full Leaderboard →</a>
+        <a href="https://hyperforge.app" target="_blank" class="r-btn primary">Build My Own Bot →</a>
+        <button class="r-btn ghost" onclick="practiceMode()">Practice</button>
+      </div>
+    </div>
+
+    <!-- Sprint over -->
+    <div class="sprint-over" id="sprint-over">
+      <div class="so-stamp">SPRINT OVER</div>
+      <div class="r-title">The 30-day beta sprint has ended.</div>
+      <div class="so-sub">The top 20 players on the leaderboard have been notified about their HyperForge beta access.<br>Stay tuned.</div>
+      <a href="leaderboard.html" class="r-btn lb-btn" style="display:inline-block;margin-top:8px">View Final Leaderboard →</a>
+    </div>
+
+  </div><!-- /game-card -->
+</div><!-- /page -->
+
+<div class="disclaimer">
+  <p class="disclaimer-text">
+    <strong style="color:var(--text2)">Not financial advice.</strong>
+    Crack The Bot is an educational puzzle game based on an ongoing personal trading experiment.
+    All performance metrics shown are real but reflect past results only — past performance does not guarantee future returns.
+    The described trading bot operates on a live account with real funds at significant risk.
+    Nothing on this site constitutes financial advice, investment advice, or a solicitation to trade.
+    Crypto and perpetual futures trading carries substantial risk of loss and is not suitable for all investors.
+    <strong style="color:var(--text2)">Never trade money you cannot afford to lose.</strong>
+  </p>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://pugmrupmlxckmrlcuzby.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_pEhpLWsASpjHABotE1eYeg_YoS_H32C';
+const SB_ON = true;
+
+const STATS_API  = 'http://155.248.237.104:5051/api/hyperforge/live-stats';
+const LAUNCH     = new Date('2026-04-11T00:00:00Z');
+const END_DATE   = new Date('2026-05-11T00:00:00Z');
+const BETA_SPOTS = 20;
+const TIMER_SECS = 30;
+const PTS_BASE   = 100;
+const SPEED_SECS = 10;
+const SPEED_BONUS= 50;
+const MULT       = [1, 1, 1.5, 2, 2.5, 3];
+
+// ─────────────────────────────────────────────────────────────────
+// CLUES
+// ─────────────────────────────────────────────────────────────────
+const ALL_CLUES = [
+  { type:"Crowd Behavior",  text:"When traders pile heavily onto one side of a market, the bot gets very interested. The more crowded the trade, the more alert it becomes." },
+  { type:"OI vs Price",     text:"It watches open interest — the total size of all bets in the market. When OI surges but price barely moves, something is building." },
+  { type:"Loss Rule",       text:"One losing trade and it goes dark. No revenge entries, no averaging down. It walks away and waits for the next day." },
+  { type:"Trade Frequency", text:"On most days it fires once. Occasionally twice. It never fires three times in a single day — ever." },
+  { type:"Coin Selection",  text:"It scans 30+ different coins. But certain tickers are permanently ignored — blacklisted regardless of the signal." },
+  { type:"Market Condition",text:"Dead markets bore it. It needs tension — a crowded, unstable positioning structure before it will act." },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// TRADE POOL (12 scenarios — 5 drawn by date seed)
+// ─────────────────────────────────────────────────────────────────
+const POOL = [
+  { time:"Tuesday · Open Interest Report · ETH-PERP", story:"Open interest on ETH perpetuals has been climbing for 3 hours straight. Price has barely moved — flat within a 0.4% range. The positions are piling up, but the market isn't going anywhere yet. Then the bot fires.", details:{result:"+$420",held:"1h 12min",coin:"ETH"}, question:"What side did the bot take?", answers:["Long — OI rising means buyers are in control","It faded the crowded side — whoever was trapped had to unwind","It waited for price to break before entering","Short — rising OI always precedes a drop"], correct:1, feedback:{ ok:"✓ The bot doesn't predict direction — it hunts trapped positioning. OI rising while price stalls means someone is going to get squeezed. It fades the crowded side.", bad:"✗ Rising OI + flat price isn't a directional signal on its own. It means pressure is building. The bot's edge is identifying who's trapped — and fading them." }},
+  { time:"Wednesday · Positioning Snapshot · BTC-PERP", story:"Data shows an extreme imbalance: the overwhelming majority of open BTC positions are long. The funding rate has been elevated for 6 hours. Price is consolidating just below a key level. The bot has been watching quietly.", details:{result:"?",held:"?",coin:"BTC"}, question:"What does the bot do?", answers:["Goes long — the crowd must be right","Passes — no divergence between OI and price","Goes short — the crowded long is the setup","Waits for OI to drop before entering"], correct:2, feedback:{ ok:"✓ Extreme crowding on one side is exactly what this bot looks for. When everyone is leaning long and the move hasn't happened yet, it fades — and waits for the unwind.", bad:"✗ When the crowd is overwhelmingly positioned one way and price is stalling, who's vulnerable? The bot doesn't follow the herd — it fades it." }},
+  { time:"Thursday · 11:04 PM UTC · SOL-PERP", story:"The bot just closed a losing trade on SOL. The position moved against it within the first 20 minutes and stopped out. It's now 40 minutes later, and a fresh OI divergence signal has appeared on the same coin — a clean setup by its usual criteria.", details:{result:"-$180",held:"22 min",coin:"SOL"}, question:"Does the bot take the second signal?", answers:["Yes — this one looks cleaner than the first","No — one loss ends the day, no exceptions","Yes — but with half the normal position size","Only if the OI divergence is stronger than before"], correct:1, feedback:{ ok:"✓ One loss per day — full stop. The bot doesn't care how good the next setup looks. Protecting capital after a bad read is non-negotiable.", bad:"✗ The bot has a hard rule: lose once, done for the day. No re-entry, no position sizing adjustments. It doesn't chase losses." }},
+  { time:"Friday · Low Volume Session · DOGE-PERP", story:"DOGE open interest has barely moved all day. Volume is thin, positioning is balanced — roughly equal longs and shorts. There's no clear crowding on either side. The market is drifting.", details:{result:"?",held:"?",coin:"DOGE"}, question:"What does the bot do in a balanced, quiet market?", answers:["Trades — even small imbalances are worth acting on","Goes long — drift usually resolves upward","Waits — no crowded positioning means no edge","Shorts — quiet markets tend to break down"], correct:2, feedback:{ ok:"✓ No crowded positioning = no setup. The bot's entire edge depends on finding unstable, imbalanced markets. When the crowd isn't trapped, it stays out completely.", bad:"✗ This bot needs something specific to act on — an imbalance, a crowd leaning hard one way. Without that tension, it has nothing to fade." }},
+  { time:"Monday · Two Signals · AVAX-PERP", story:"The bot fired its first trade of the day on AVAX at 2am UTC — a clean OI divergence, held for 55 minutes, closed green. Now it's 6 hours later. A second divergence has appeared on a different coin with equally strong positioning imbalance.", details:{result:"+$310",held:"55 min",coin:"AVAX"}, question:"Does the bot take the second trade today?", answers:["Yes — it already won once, now it presses the advantage","Yes — different coin, same edge, independent signal","No — it already hit its daily limit","Only if the second signal is on a top-5 coin by volume"], correct:2, feedback:{ ok:"✓ The daily trade limit is firm. One trade, maybe two on a rare day — but once that limit is hit, the bot shuts down regardless of what the market does next.", bad:"✗ No second trade today. The bot's discipline isn't about the quality of the setup — it's about protecting the day's edge. Once the limit is hit, it's finished." }},
+  { time:"Saturday · Active Position · LINK-PERP", story:"The bot has an open long on LINK — 45 minutes in, currently sitting at +$220 unrealized. Suddenly a strong OI divergence signal appears on ARB, a completely separate coin. The signal quality is high by every measure the bot uses.", details:{result:"+$220 open",held:"45 min",coin:"LINK"}, question:"Does the bot open a second position on ARB while LINK is still live?", answers:["Yes — separate coin, independent risk","No — it manages one position at a time","Yes, but it reduces the LINK position first","Only if ARB's OI divergence is larger than LINK's was"], correct:1, feedback:{ ok:"✓ The bot runs one position at a time. A new signal while already in a trade gets ignored — no stacking, no exceptions.", bad:"✗ The bot doesn't stack positions. One open trade at a time, regardless of how good a new signal looks." }},
+  { time:"Sunday · Win Streak · ARB-PERP", story:"The bot has had 5 consecutive profitable days — its best run in months. Today a fresh signal appears on ARB with standard OI divergence. Position size was consistent across the streak. Does a winning run change anything?", details:{result:"+$1,650 (5 days)",held:"5-day streak",coin:"ARB"}, question:"Does the bot increase its position size after a strong winning streak?", answers:["Yes — a hot streak earns bigger bets","No — position sizing is rules-based, not performance-based","It doubles size but only for one trade","It asks for manual approval before sizing up"], correct:1, feedback:{ ok:"✓ The bot doesn't gamble on hot streaks. Sizing is set by the rules — not by recent results. That's how it avoids giving back gains the moment luck reverses.", bad:"✗ Emotional sizing is how bots blow up. This one doesn't do it. Rules determine size — not how well the last week went." }},
+  { time:"Tuesday · Flash Event · Multiple Coins", story:"A major exchange posts rumours of a hack. Every coin drops 12–20% in 90 seconds. OI divergence signals appear across 8 coins simultaneously. The bot's scanning loop fires multiple alerts at once.", details:{result:"?",held:"?",coin:"Multiple"}, question:"What does the bot do during a chaotic, fast-moving volatility event?", answers:["Fires on all 8 signals — maximum opportunity","Fires on the strongest signal only","Goes quiet — chaotic volatility isn't its environment","Waits 5 minutes then enters the largest move"], correct:2, feedback:{ ok:"✓ Chaotic volatility is noise, not signal. The bot needs a structured, crowded imbalance — not a market in freefall. It goes dark and waits.", bad:"✗ Sudden crashes aren't the bot's setup. It hunts structured positioning imbalances, not panic. During chaotic moves, it goes completely quiet." }},
+  { time:"Wednesday · Blacklist Test · TOKEN-PERP", story:"A coin the bot has been scanning just gained huge trading volume. OI divergence is showing one of the strongest readings the bot has ever recorded. But this ticker is on the bot's permanent blacklist — added months ago.", details:{result:"?",held:"?",coin:"BLACKLISTED"}, question:"Does the bot trade a blacklisted coin if the signal is exceptionally strong?", answers:["Yes — signal quality overrides the blacklist","No — blacklisted means never, regardless of signal","Only if volume exceeds a threshold","It alerts the user and waits for manual approval"], correct:1, feedback:{ ok:"✓ Blacklisted tickers are off forever. The bot doesn't negotiate with its own rules based on signal strength — that would create exactly the kind of exception that causes blow-ups.", bad:"✗ Blacklists are absolute. If a ticker is on it, the bot won't trade it — no matter how good the setup looks. Rules are rules." }},
+  { time:"Thursday · Funding Only · BNB-PERP", story:"BNB funding rates are extremely elevated — longs have been paying shorts at 3× normal rates for 12 hours. But when you check OI against price: OI has been flat, price has been drifting up slowly. No divergence.", details:{result:"?",held:"?",coin:"BNB"}, question:"Does elevated funding alone trigger a trade?", answers:["Yes — elevated funding means longs are trapped","No — funding alone isn't the trigger. OI-price divergence is required.","Yes, but only if funding has been elevated 6+ hours","It goes short automatically on any funding above 2×"], correct:1, feedback:{ ok:"✓ Funding is context, not the signal. Without the OI-price divergence pattern, the bot sits out — even if the funding story looks compelling.", bad:"✗ Funding rate alone doesn't pull the trigger. The bot needs to see the specific OI-versus-price structure. Without it, there's no trade." }},
+  { time:"Friday · Position vs Stop · OP-PERP", story:"The bot is in a short position on OP. The trade has been running 80 minutes and is currently down $90. There's no fresh OI signal, but a news headline just dropped suggesting OP will be listed on a new exchange.", details:{result:"-$90 live",held:"80 min ongoing",coin:"OP"}, question:"Does the bot exit early due to the news headline?", answers:["Yes — news headlines change the setup entirely","No — it follows its exit rules, not news","It halves the position size as a hedge","It adds to the short — news pumps are faded"], correct:1, feedback:{ ok:"✓ The bot doesn't read headlines — it follows its exit rules. News is noise unless it changes the OI structure. It holds or exits based on its own criteria only.", bad:"✗ The bot doesn't process news. It has an exit rule and it follows it. External headlines don't override the system." }},
+  { time:"Monday · Re-entry · SUI-PERP", story:"The bot entered a short on SUI, held for 70 minutes, closed green at +$280. Ten minutes later the same OI divergence signal re-appears on SUI — almost identical to the one that just made money. The daily limit allows one more entry.", details:{result:"+$280 closed",held:"70 min",coin:"SUI"}, question:"Does the bot re-enter SUI immediately after a winning trade on the same coin?", answers:["Yes — the signal is valid and the limit allows it","No — it has a cooldown period before re-entering any coin it just traded","Only if the new OI divergence is stronger than the original","Yes, but at half size since it just closed a trade"], correct:1, feedback:{ ok:"✓ After closing a trade on a coin, the bot sits out that ticker for a cooldown period — regardless of what signals appear. It doesn't chase immediate re-entries.", bad:"✗ Per-coin cooldowns prevent re-entry churn. Even if the signal looks identical, the bot won't re-enter a coin it just traded until the cooldown expires." }},
+];
+
+// ─────────────────────────────────────────────────────────────────
+// DAILY PUZZLE
+// ─────────────────────────────────────────────────────────────────
+function todayKey() {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+}
+function yesterdayKey() {
+  const d = new Date(Date.now()-86400000);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+}
+function puzzleNum() { return Math.max(1, Math.floor((Date.now()-LAUNCH)/86400000)+1); }
+
+function seededShuffle(arr, seed) {
+  const a=[...arr]; let s=seed;
+  for(let i=a.length-1;i>0;i--){s=((s*1664525)+1013904223)&0xffffffff;const j=Math.abs(s)%(i+1);[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function dateSeed(str) { let h=5381; for(let i=0;i<str.length;i++) h=(h*33)^str.charCodeAt(i); return Math.abs(h); }
+function getDailyTrades() { return seededShuffle(POOL, dateSeed(todayKey())).slice(0,5); }
+
+// ─────────────────────────────────────────────────────────────────
+// LS
+// ─────────────────────────────────────────────────────────────────
+function getLS(k,fb){try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):fb;}catch{return fb;}}
+function setLS(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+// ─────────────────────────────────────────────────────────────────
+// DAY STREAK
+// ─────────────────────────────────────────────────────────────────
+function touchStreak() {
+  const today=todayKey(), last=getLS('ctb_last',null);
+  let n=getLS('ctb_streak',0);
+  if(last===today) return n;
+  n=(last===yesterdayKey())?n+1:1;
+  setLS('ctb_streak',n); setLS('ctb_last',today);
+  return n;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SUPABASE
+// ─────────────────────────────────────────────────────────────────
+const H=()=>({'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'});
+async function sbFetch(path,opts={}){
+  if(!SB_ON) return null;
+  try{ const r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{headers:H(),...opts}); if(!r.ok) return null; const t=await r.text(); return t?JSON.parse(t):null; }catch{return null;}
+}
+async function sbPost(cs,score,cracked,streak){ return sbFetch('ctb_scores',{method:'POST',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({call_sign:cs,score,puzzle_date:todayKey(),day_streak:streak,cracked})}); }
+async function sbBoard(date){ return sbFetch(`ctb_scores?${date?`puzzle_date=eq.${date}&`:''}order=score.desc&limit=10`); }
+
+// ─────────────────────────────────────────────────────────────────
+// LIVE STATS
+// ─────────────────────────────────────────────────────────────────
+async function fetchStats(){
+  try{
+    const d=await(await fetch(STATS_API)).json();
+    document.getElementById('n-wr').textContent=d.combined_win_rate.toFixed(1)+'%';
+    document.getElementById('n-pnl').textContent=(d.sum_pnl_pct>=0?'+':'')+d.sum_pnl_pct.toFixed(2)+'%';
+    document.getElementById('n-trades').textContent=d.combined_trade_count;
+  }catch{}
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SPRINT COUNTDOWN
+// ─────────────────────────────────────────────────────────────────
+function updateSprintBadge(){
+  const diff=END_DATE-Date.now();
+  if(diff<=0){document.getElementById('sprint-cd').textContent='Sprint ended';return;}
+  const days=Math.ceil(diff/86400000);
+  document.getElementById('sprint-cd').textContent=`${days} day${days!==1?'s':''} left`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// NEXT-PUZZLE COUNTDOWN
+// ─────────────────────────────────────────────────────────────────
+function startNextCountdown(){
+  function upd(){
+    const now=new Date(),next=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()+1));
+    const d=next-now,h=String(Math.floor(d/3600000)).padStart(2,'0'),m=String(Math.floor((d%3600000)/60000)).padStart(2,'0'),s=String(Math.floor((d%60000)/1000)).padStart(2,'0');
+    const el=document.getElementById('cd-next');
+    if(el) el.textContent=`${h}:${m}:${s}`;
+  }
+  upd(); setInterval(upd,1000);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TIMER
+// ─────────────────────────────────────────────────────────────────
+let timerInterval=null, qStartTime=0;
+
+function startTimer(){
+  qStartTime=Date.now();
+  const bar=document.getElementById('timer-fill');
+  bar.style.transition='none'; bar.style.width='100%'; bar.className='timer-fill';
+  clearInterval(timerInterval);
+  setTimeout(()=>{bar.style.transition=`width ${TIMER_SECS*1000}ms linear`;bar.style.width='0%';},30);
+  timerInterval=setInterval(()=>{
+    const e=(Date.now()-qStartTime)/1000;
+    if(e>TIMER_SECS*0.6) bar.className='timer-fill urgent';
+    if(e>=TIMER_SECS){ stopTimer(); showTimeoutModal(); }
+  },200);
+}
+
+function stopTimer(){ clearInterval(timerInterval); }
+
+function showTimeoutModal(){ document.getElementById('timeout-modal').classList.add('show'); }
+
+function retryQuestion(){
+  document.getElementById('timeout-modal').classList.remove('show');
+  const btns=document.querySelectorAll('.ans-btn');
+  btns.forEach(b=>{b.disabled=false;b.className='ans-btn';});
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('next-btn').disabled=true;
+  answered=false;
+  startTimer();
+}
+
+function speedBonus(){ return (Date.now()-qStartTime)/1000<=SPEED_SECS?SPEED_BONUS:0; }
+
+// ─────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────
+let dailyTrades=[], qIndex=0, sessionPts=0, correctCount=0, answered=false, revealedClues=1, qResults=[], scoreSaved=false, currentTab='today';
+
+// ─────────────────────────────────────────────────────────────────
+// STREAK BADGE
+// ─────────────────────────────────────────────────────────────────
+function renderStreakBadge(){
+  const n=getLS('ctb_streak',0), el=document.getElementById('streak-badge');
+  if(n>=3){el.textContent=`🔥 Day ${n}`;el.style.borderColor='rgba(251,191,36,.4)';el.style.color='var(--amber)';}
+  else if(n>0){el.textContent=`Day ${n} streak`;}
+  else{el.textContent='Day — streak';}
+}
+
+// ─────────────────────────────────────────────────────────────────
+// RENDER CLUES
+// ─────────────────────────────────────────────────────────────────
+function renderClues(){
+  const g=document.getElementById('clues-grid');
+  g.innerHTML='';
+  ALL_CLUES.forEach((c,i)=>{
+    const d=document.createElement('div');
+    d.className='clue-card'+(i>=revealedClues?' locked':'');
+    d.innerHTML=`<div class="clue-n">${String(i+1).padStart(2,'0')}</div><div class="clue-tag">${c.type}</div><div class="clue-body">${i<revealedClues?c.text:'????'}</div>${i>=revealedClues?'<div class="clue-lock">🔒</div>':''}`;
+    g.appendChild(d);
+    setTimeout(()=>d.classList.add('vis'),i*70);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// RENDER SIGNAL
+// ─────────────────────────────────────────────────────────────────
+function renderSignal(t){
+  document.getElementById('signal-box').innerHTML=`
+    <div class="signal-tag">Intercepted Signal</div>
+    <div class="signal-time">${t.time}</div>
+    <div class="signal-story">${t.story}</div>
+    <div class="signal-stats">
+      <div class="ss-item"><div class="ss-val">${t.details.result}</div><div class="ss-label">Result</div></div>
+      <div class="ss-item"><div class="ss-val">${t.details.held}</div><div class="ss-label">Hold time</div></div>
+      <div class="ss-item"><div class="ss-val">${t.details.coin}</div><div class="ss-label">Coin</div></div>
+    </div>
+    <div class="oi-visual">
+      <div class="oi-col"><div class="oi-col-label">Open Interest</div><div class="oi-bars"><div class="oi-bar flat" style="height:10px"></div><div class="oi-bar flat" style="height:14px"></div><div class="oi-bar rise" style="height:22px"></div><div class="oi-bar rise" style="height:28px"></div><div class="oi-bar rise" style="height:35px"></div></div><div class="oi-val up">↑ rising</div></div>
+      <div class="oi-col"><div class="oi-col-label">Price</div><div class="oi-bars"><div class="oi-bar flat" style="height:18px"></div><div class="oi-bar flat" style="height:20px"></div><div class="oi-bar flat" style="height:17px"></div><div class="oi-bar flat" style="height:19px"></div><div class="oi-bar flat" style="height:18px"></div></div><div class="oi-val fl">→ flat</div></div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// RENDER QUESTION
+// ─────────────────────────────────────────────────────────────────
+function renderQuestion(){
+  const t=dailyTrades[qIndex];
+  document.getElementById('q-counter').textContent=`${qIndex+1} / 5`;
+  document.getElementById('q-text').textContent=t.question;
+  renderSignal(t);
+  const btns=document.getElementById('answers');
+  btns.innerHTML='';
+  t.answers.forEach((a,i)=>{
+    const b=document.createElement('button');
+    b.className='ans-btn'; b.textContent=a;
+    b.onclick=()=>selectAnswer(i);
+    btns.appendChild(b);
+  });
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('next-btn').disabled=true;
+  document.getElementById('next-btn').textContent=qIndex<4?'Next Signal →':'See Results →';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SELECT ANSWER
+// ─────────────────────────────────────────────────────────────────
+function selectAnswer(chosen){
+  if(answered) return;
+  answered=true; stopTimer();
+  const t=dailyTrades[qIndex], correct=t.correct;
+  const btns=document.querySelectorAll('.ans-btn');
+  btns.forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('reveal');});
+  const isOk=chosen===correct;
+  if(isOk){
+    btns[chosen].classList.add('correct');
+    correctCount++;
+    const mult=MULT[Math.min(correctCount-1,MULT.length-1)];
+    const spd=speedBonus();
+    const earned=Math.round(PTS_BASE*mult)+spd;
+    sessionPts+=earned;
+    const pv=document.getElementById('pts-val');
+    pv.textContent=sessionPts; pv.classList.remove('pop'); void pv.offsetWidth; pv.classList.add('pop');
+    const msgs=[];
+    if(mult>1) msgs.push(`×${mult}`);
+    if(spd>0) msgs.push(`⚡+${spd}`);
+    msgs.push(`+${earned}pts`);
+    toast(msgs.join('  '));
+    document.getElementById('feedback').className='feedback ok';
+    document.getElementById('feedback').textContent=t.feedback.ok;
+    qResults.push('ok');
+  } else {
+    btns[chosen].classList.add('wrong');
+    document.getElementById('game-card').classList.add('shake');
+    setTimeout(()=>document.getElementById('game-card').classList.remove('shake'),400);
+    document.getElementById('feedback').className='feedback bad';
+    document.getElementById('feedback').textContent=t.feedback.bad;
+    qResults.push('bad');
+  }
+  document.getElementById('pip'+(qIndex+1)).className='pip '+(isOk?'correct':'wrong');
+  document.getElementById('next-btn').disabled=false;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// NEXT QUESTION
+// ─────────────────────────────────────────────────────────────────
+function nextQuestion(){
+  if(qIndex<4){
+    qIndex++; answered=false;
+    if(qIndex%2===0&&revealedClues<ALL_CLUES.length) revealedClues++;
+    renderClues(); renderQuestion(); startTimer();
+  } else { finishDaily(); }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// FINISH DAILY
+// ─────────────────────────────────────────────────────────────────
+function finishDaily(){
+  stopTimer();
+  touchStreak();
+  setLS('ctb_played_'+todayKey(),{score:sessionPts,correct:correctCount,results:qResults,saved:false});
+  renderStreakBadge();
+  showResults(true);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SHOW RESULTS
+// ─────────────────────────────────────────────────────────────────
+function showResults(fresh){
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('timer-fill').style.width='0';
+  const rs=document.getElementById('results-screen');
+  rs.style.display='block';
+  if(fresh) rs.classList.add('animate-in');
+
+  const cracked=correctCount===5;
+  const stamp=document.getElementById('r-stamp');
+  stamp.textContent=cracked?'CRACKED':`${correctCount}/5`;
+  stamp.className='result-stamp'+(cracked?'':' fail');
+  document.getElementById('r-score').innerHTML=`${sessionPts}<span>points</span>`;
+  document.getElementById('pts-val').textContent=sessionPts;
+  document.getElementById('r-title').textContent=cracked?'You figured it out, detective.':`${correctCount} out of 5 today.`;
+  document.getElementById('r-copy').textContent=cracked
+    ?'All 5 signals read correctly. The bot is running live on HyperLiquid right now.'
+    :`You got ${correctCount} right. Come back tomorrow — new signals, fresh shot at the leaderboard.`;
+  document.getElementById('score-tiles').innerHTML=qResults.map(r=>`<span class="score-tile">${r==='ok'?'🟩':'🟥'}</span>`).join('');
+
+  if(scoreSaved){document.getElementById('submit-btn').disabled=true;document.getElementById('callsign').disabled=true;}
+  renderLeaderboard('today');
+  startNextCountdown();
+  updateBetaCallout();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// BETA CALLOUT
+// ─────────────────────────────────────────────────────────────────
+async function updateBetaCallout(){
+  const el=document.getElementById('beta-callout-text');
+  const board=await sbBoard(todayKey()) || getLS('ctb_lb_'+todayKey(),[]);
+  if(!board||!board.length){el.innerHTML='<strong>Post your score</strong> to claim your spot on the leaderboard. First 20 with most points win HyperForge Beta.';return;}
+  const rank=board.findIndex(e=>e.score<=sessionPts);
+  const pos=rank===-1?board.length+1:rank+1;
+  if(pos<=BETA_SPOTS){
+    el.innerHTML=`You're currently <strong>#${pos}</strong> — inside the top ${BETA_SPOTS}. <strong>You're on track for HyperForge Beta access.</strong>`;
+    document.getElementById('beta-callout').style.borderColor='rgba(52,211,153,.4)';
+  } else {
+    el.innerHTML=`You're currently <strong>#${pos}</strong>. Top ${BETA_SPOTS} win early HyperForge Beta access — keep playing daily to climb.`;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// LEADERBOARD
+// ─────────────────────────────────────────────────────────────────
+async function renderLeaderboard(tab){
+  const el=document.getElementById('lb-content');
+  el.innerHTML=`<div class="lb-empty">Loading...</div>`;
+  let rows=tab==='today'?await sbBoard(todayKey()):await sbBoard(null);
+  if(!rows) rows=getLS('ctb_lb_'+(tab==='today'?todayKey():'alltime'),[]);
+  if(!rows||!rows.length){el.innerHTML=`<div class="lb-table"><div class="lb-empty">No scores yet — be first.</div></div>`;return;}
+  const rc=['r1','r2','r3'];
+  const head=`<div class="lb-head"><div>#</div><div>Detective</div><div style="text-align:center">Streak</div><div style="text-align:right">Pts</div></div>`;
+  const rowsHtml=rows.slice(0,10).map((e,i)=>{
+    const you=e.score===sessionPts&&!scoreSaved;
+    return `<div class="lb-row${you?' you':''}"><div class="lb-rank ${rc[i]||''}">${i+1}</div><div class="lb-name">${e.call_sign||e.name||'ANON'}${you?' ◀':''}</div><div class="lb-streak">${e.day_streak||'—'}</div><div class="lb-pts">${e.score}</div></div>`;
+  }).join('');
+  el.innerHTML=`<div class="lb-table">${head}${rowsHtml}</div>`;
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.getElementById('tab-today').className='lb-tab'+(tab==='today'?' on':'');
+  document.getElementById('tab-alltime').className='lb-tab'+(tab==='alltime'?' on':'');
+  renderLeaderboard(tab);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SUBMIT SCORE
+// ─────────────────────────────────────────────────────────────────
+async function submitScore(){
+  if(scoreSaved) return;
+  const btn=document.getElementById('submit-btn');
+  const name=(document.getElementById('callsign').value||'ANON').trim().toUpperCase().slice(0,10)||'ANON';
+  const streak=getLS('ctb_streak',1), cracked=correctCount===5;
+  btn.disabled=true; btn.textContent='Posting...';
+  if(SB_ON) await sbPost(name,sessionPts,cracked,streak);
+  const entry={call_sign:name,score:sessionPts,day_streak:streak,cracked};
+  const tk=todayKey();
+  const td=getLS('ctb_lb_'+tk,[]); td.push(entry); td.sort((a,b)=>b.score-a.score); setLS('ctb_lb_'+tk,td.slice(0,20));
+  const al=getLS('ctb_lb_alltime',[]); al.push(entry); al.sort((a,b)=>b.score-a.score); setLS('ctb_lb_alltime',al.slice(0,50));
+  scoreSaved=true;
+  const pd=getLS('ctb_played_'+tk,{}); pd.saved=true; setLS('ctb_played_'+tk,pd);
+  document.getElementById('callsign').disabled=true; btn.textContent='Posted ✓';
+  toast('Score saved!');
+  renderLeaderboard(currentTab);
+  updateBetaCallout();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SHARE
+// ─────────────────────────────────────────────────────────────────
+function shareText(){
+  const num=puzzleNum(), streak=getLS('ctb_streak',1);
+  const grid=qResults.map(r=>r==='ok'?'🟩':'🟥').join('');
+  const cracked=correctCount===5;
+  return `🕵️ Crack The Bot — Puzzle #${num}\n${grid}${cracked?' ✅':''}\n${sessionPts} pts · Day ${streak} streak\n\nA real trading bot runs live on HyperLiquid.\nCan you figure out how it thinks?\n\n#CrackTheBot #HyperLiquid\nhttps://hyperforge.app/crack-the-bot`;
+}
+
+function copyToClipboard(text){
+  if(navigator.clipboard){navigator.clipboard.writeText(text);}
+  else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}
+}
+
+function shareTo(platform){
+  const text=shareText();
+  const url='https://hyperforge.app/crack-the-bot';
+  if(platform==='x'){
+    window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank','noopener');
+  } else if(platform==='fb'){
+    window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(url)+'&quote='+encodeURIComponent(text),'_blank','noopener');
+  } else if(platform==='ig'){
+    copyToClipboard(text);
+    toast('Copied — open Instagram and paste as caption');
+  } else if(platform==='tt'){
+    copyToClipboard(text);
+    toast('Copied — open TikTok and paste in your caption');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PRACTICE MODE
+// ─────────────────────────────────────────────────────────────────
+function practiceMode(){
+  qIndex=0;answered=false;revealedClues=1;sessionPts=0;correctCount=0;qResults=[];scoreSaved=true;
+  document.getElementById('pts-val').textContent='0';
+  for(let i=1;i<=5;i++) document.getElementById('pip'+i).className='pip';
+  document.getElementById('results-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  renderClues(); renderQuestion(); startTimer();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────────────────────────
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// NAV SCROLL
+// ─────────────────────────────────────────────────────────────────
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>20);
+},{passive:true});
+
+// ─────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────
+function init(){
+  // Check if sprint is over
+  if(Date.now()>END_DATE){
+    document.getElementById('game-screen').style.display='none';
+    document.getElementById('results-screen').style.display='none';
+    document.getElementById('sprint-over').style.display='block';
+    return;
+  }
+
+  dailyTrades=getDailyTrades();
+  const num=puzzleNum();
+  document.getElementById('p-num').textContent='#'+num;
+  document.getElementById('p-date').textContent=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
+
+  updateSprintBadge();
+  setInterval(updateSprintBadge,60000);
+
+  renderStreakBadge();
+  fetchStats();
+  setInterval(fetchStats,60000);
+
+  // Already played today?
+  const played=getLS('ctb_played_'+todayKey(),null);
+  if(played){
+    sessionPts=played.score; correctCount=played.correct; qResults=played.results; scoreSaved=played.saved||false;
+    document.getElementById('pts-val').textContent=sessionPts;
+    for(let i=0;i<qResults.length;i++) document.getElementById('pip'+(i+1)).className='pip '+(qResults[i]==='ok'?'correct':'wrong');
+    showResults(false);
+    return;
+  }
+
+  renderClues();
+  renderQuestion();
+  startTimer();
+}
+
+init();
+</script>
+</body>
+</html>
