@@ -364,8 +364,8 @@ input,textarea { font:inherit; }
 .r-btn.primary:hover { opacity:.88;transform:translateY(-1px); }
 .r-btn.ghost   { background:transparent;border:1px solid var(--border);color:var(--text2); }
 .r-btn.ghost:hover { border-color:var(--border-light);color:var(--text1); }
-.r-btn.lb-btn  { background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);color:var(--indigo); }
-.r-btn.lb-btn:hover { background:rgba(99,102,241,.2); }
+.r-btn.lb-btn  { background:var(--grad-indigo);color:#fff;text-decoration:none; }
+.r-btn.lb-btn:hover { opacity:.88;transform:translateY(-1px); }
 
 /* ── Social Share ── */
 .social-share { padding:0 24px 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
@@ -737,8 +737,8 @@ const EJS_SERVICE_ID  = 'service_hr2mfry';
 const EJS_TEMPLATE_ID = 'template_30zl6lf';
 const EJS_ON = EJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY';
 
-// Only real top-20 players see the win modal
-const BETA_TEST_MODE = false;
+// Set false in production — true only for testing via ?test=end
+const BETA_TEST_MODE = true;
 
 const STATS_API  = 'stats.json';
 const LAUNCH     = new Date('2026-04-11T00:00:00Z');
@@ -1064,7 +1064,14 @@ function showResults(fresh){
 async function updateBetaCallout(){
   const el=document.getElementById('beta-callout-text');
   const board=await sbBoard(todayKey()) || getLS('ctb_lb_'+todayKey(),[]);
-  if(!board||!board.length){el.innerHTML='<strong>Post your score</strong> to claim your spot on the leaderboard. First 20 with most points win HyperForge Beta.';return;}
+  if(!board||!board.length){
+    el.innerHTML='<strong>Post your score</strong> to claim your spot on the leaderboard. First 20 with most points win HyperForge Beta.';
+    if(BETA_TEST_MODE&&!getLS('ctb_beta_submitted',false)){
+      document.getElementById('win-score-val').textContent=sessionPts;
+      setTimeout(()=>document.getElementById('win-modal').classList.add('show'),600);
+    }
+    return;
+  }
   const rank=board.findIndex(e=>e.score<=sessionPts);
   const pos=rank===-1?board.length+1:rank+1;
   const inTop20=pos<=BETA_SPOTS||BETA_TEST_MODE;
