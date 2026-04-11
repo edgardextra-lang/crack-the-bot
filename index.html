@@ -9,16 +9,16 @@
 <!-- Open Graph (LinkedIn, Facebook, iMessage, Slack, Discord) -->
 <meta property="og:type"        content="website">
 <meta property="og:url"         content="https://edgardextra-lang.github.io/crack-the-bot">
-<meta property="og:title"       content="Crack The Bot — Daily Trading Puzzle">
-<meta property="og:description" content="A real trading bot runs live on Hyperliquid. 5 intercepted signals every day — read the setup, crack the logic, earn points. Top 20 over 30 days win early HyperForge Beta access.">
+<meta property="og:title"       content="Crack The Bot — Can You Think Like a Trading Algorithm?">
+<meta property="og:description" content="5 intercepted signals from a real Hyperliquid trading bot. Read the setup, crack the logic, earn points. Top 20 over 30 days win HyperForge Beta.">
 <meta property="og:image"       content="https://edgardextra-lang.github.io/crack-the-bot/og-image.png">
 <meta property="og:image:width"  content="1200">
 <meta property="og:image:height" content="630">
 
 <!-- Twitter / X Card -->
 <meta name="twitter:card"        content="summary_large_image">
-<meta name="twitter:title"       content="Crack The Bot — Daily Trading Puzzle">
-<meta name="twitter:description" content="A real bot runs live on Hyperliquid. 5 intercepted signals daily — can you think like an algorithm?">
+<meta name="twitter:title"       content="Crack The Bot — Can You Think Like a Trading Algorithm?">
+<meta name="twitter:description" content="5 signals from a real live trading bot every day. Read the setup, crack the logic. Top 20 over 30 days win beta access.">
 <meta name="twitter:image"       content="https://edgardextra-lang.github.io/crack-the-bot/og-image.png">
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
@@ -890,7 +890,8 @@ async function sbFetch(path,opts={}){
   try{
     const r=await fetch(SUPABASE_URL+'/rest/v1/'+path,{headers:H(),...opts});
     if(!r.ok){ console.warn('Supabase',r.status,await r.text()); return null; }
-    const t=await r.text(); return t?JSON.parse(t):null;
+    const t=await r.text();
+    return t ? JSON.parse(t) : true; // true = 2xx with empty body (successful INSERT/UPDATE)
   }catch(e){ console.warn('Supabase fetch error',e); return null; }
 }
 async function sbPost(cs,score,cracked,streak){ return sbFetch('ctb_scores',{method:'POST',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({call_sign:cs,score,puzzle_date:todayKey(),day_streak:streak,cracked:cracked?1:0})}); }
