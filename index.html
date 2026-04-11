@@ -279,6 +279,37 @@ input,textarea { font:inherit; }
 .beta-callout-text { font-size:13px;color:var(--text1);line-height:1.5; }
 .beta-callout-text strong { color:var(--indigo); }
 
+/* Beta email capture */
+.beta-email-section {
+  display:none;
+  margin:0 24px 16px;
+  background:linear-gradient(135deg,rgba(52,211,153,.1),rgba(99,102,241,.08));
+  border:1px solid rgba(52,211,153,.35);
+  border-radius:var(--r);padding:18px 20px;
+}
+.beta-email-title { font-size:14px;font-weight:700;color:var(--green);margin-bottom:4px; }
+.beta-email-sub   { font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5; }
+.beta-email-row   { display:flex;gap:8px;flex-wrap:wrap; }
+.beta-email-input {
+  flex:1;min-width:200px;
+  background:var(--bg);border:1px solid var(--border-light);border-radius:8px;
+  padding:10px 14px;font-size:13px;color:var(--text1);outline:none;
+  transition:border-color .2s;
+}
+.beta-email-input:focus { border-color:var(--green-dim); }
+.beta-email-input::placeholder { color:var(--text3); }
+.beta-email-btn {
+  background:var(--grad-green);color:#fff;padding:10px 20px;border-radius:8px;
+  font-weight:700;font-size:13px;white-space:nowrap;
+  transition:opacity .2s,transform .2s;flex-shrink:0;
+}
+.beta-email-btn:hover { opacity:.88;transform:translateY(-1px); }
+.beta-email-btn:disabled { opacity:.4;transform:none;cursor:not-allowed; }
+.beta-email-success {
+  display:none;text-align:center;padding:8px 0;
+  font-size:13px;color:var(--green);font-weight:600;
+}
+
 /* Countdown box */
 .countdown-box {
   margin:0 24px 16px;
@@ -417,6 +448,7 @@ input,textarea { font:inherit; }
 .pop { animation:pop .3s ease; }
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="ca5167d2-d17c-410a-8c7f-3cac0166b1f9"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -561,6 +593,17 @@ input,textarea { font:inherit; }
         <div class="beta-callout-text" id="beta-callout-text">Loading your rank...</div>
       </div>
 
+      <!-- Beta email capture -->
+      <div class="beta-email-section" id="beta-email-section">
+        <div class="beta-email-title">🔮 Claim your Beta Access spot</div>
+        <div class="beta-email-sub">You're in the top 20. Enter your email and we'll notify you when HyperForge Beta launches.</div>
+        <div class="beta-email-row">
+          <input class="beta-email-input" id="beta-email" type="email" placeholder="your@email.com" />
+          <button class="beta-email-btn" id="beta-email-btn" onclick="submitBetaEmail()">Join Beta →</button>
+        </div>
+        <div class="beta-email-success" id="beta-email-success">✅ You're on the list! Check your inbox for a confirmation.</div>
+      </div>
+
       <!-- Countdown to next puzzle -->
       <div class="countdown-box">
         <div class="cd-label">Next puzzle in</div>
@@ -644,6 +687,15 @@ input,textarea { font:inherit; }
 const SUPABASE_URL = 'https://pugmrupmlxckmrlcuzby.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_pEhpLWsASpjHABotE1eYeg_YoS_H32C';
 const SB_ON = true;
+
+// ── EmailJS (get free credentials at emailjs.com) ──
+const EJS_PUBLIC_KEY  = 'YOUR_EMAILJS_PUBLIC_KEY';
+const EJS_SERVICE_ID  = 'YOUR_EMAILJS_SERVICE_ID';
+const EJS_TEMPLATE_ID = 'YOUR_EMAILJS_TEMPLATE_ID';
+const EJS_ON = EJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY';
+
+// Set true to always show beta email form (for testing)
+const BETA_TEST_MODE = true;
 
 const STATS_API  = 'stats.json';
 const LAUNCH     = new Date('2026-04-11T00:00:00Z');
@@ -972,12 +1024,48 @@ async function updateBetaCallout(){
   if(!board||!board.length){el.innerHTML='<strong>Post your score</strong> to claim your spot on the leaderboard. First 20 with most points win HyperForge Beta.';return;}
   const rank=board.findIndex(e=>e.score<=sessionPts);
   const pos=rank===-1?board.length+1:rank+1;
-  if(pos<=BETA_SPOTS){
+  const inTop20=pos<=BETA_SPOTS||BETA_TEST_MODE;
+  if(inTop20){
     el.innerHTML=`You're currently <strong>#${pos}</strong> — inside the top ${BETA_SPOTS}. <strong>You're on track for HyperForge Beta access.</strong>`;
     document.getElementById('beta-callout').style.borderColor='rgba(52,211,153,.4)';
+    document.getElementById('beta-email-section').style.display='block';
   } else {
     el.innerHTML=`You're currently <strong>#${pos}</strong>. Top ${BETA_SPOTS} win early HyperForge Beta access — keep playing daily to climb.`;
   }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// BETA EMAIL SUBMIT
+// ─────────────────────────────────────────────────────────────────
+async function submitBetaEmail(){
+  const email=document.getElementById('beta-email').value.trim();
+  if(!email||!email.includes('@')){toast('Enter a valid email');return;}
+  const btn=document.getElementById('beta-email-btn');
+  btn.disabled=true;btn.textContent='Saving...';
+
+  // Save to Supabase
+  const cs=getLS('ctb_callsign','');
+  await sbFetch('ctb_beta_emails',{
+    method:'POST',
+    headers:{...H(),'Prefer':'return=minimal'},
+    body:JSON.stringify({email,call_sign:cs||null,score:sessionPts,created_at:new Date().toISOString()})
+  });
+
+  // Send confirmation email via EmailJS
+  if(EJS_ON){
+    try{
+      await emailjs.send(EJS_SERVICE_ID,EJS_TEMPLATE_ID,{
+        to_email:email,
+        call_sign:cs||'Detective',
+        score:sessionPts
+      },EJS_PUBLIC_KEY);
+    }catch(e){console.warn('EmailJS error:',e);}
+  }
+
+  btn.style.display='none';
+  document.getElementById('beta-email').style.display='none';
+  document.getElementById('beta-email-success').style.display='block';
+  toast('You\'re on the list!');
 }
 
 // ─────────────────────────────────────────────────────────────────
