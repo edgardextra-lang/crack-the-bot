@@ -919,7 +919,7 @@ async function sbFetch(path,opts={}){
   }catch(e){ console.warn('Supabase fetch error',e); return null; }
 }
 async function sbPost(cs,score,cracked,streak){ return sbFetch('ctb_scores',{method:'POST',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({call_sign:cs,score,puzzle_date:todayKey(),day_streak:streak,cracked:cracked?1:0})}); }
-async function sbUpdate(cs,score){ return sbFetch(`ctb_scores?call_sign=eq.${encodeURIComponent(cs)}&puzzle_date=eq.${todayKey()}`,{method:'PATCH',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({score})}); }
+async function sbUpdate(cs,score){ const streak=getLS('ctb_streak',1),cracked=correctCount===5; return sbFetch('ctb_scores',{method:'POST',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({call_sign:cs,score,puzzle_date:todayKey(),day_streak:streak,cracked:cracked?1:0})}); }
 async function sbBoard(date){ return sbFetch(`ctb_scores?${date?`puzzle_date=eq.${date}&`:''}order=score.desc&limit=10`); }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1018,7 +1018,7 @@ function speedBonus(){ return (Date.now()-qStartTime)/1000<=SPEED_SECS?SPEED_BON
 // ─────────────────────────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────────────────────────
-let dailyTrades=[], qIndex=0, sessionPts=0, correctCount=0, answered=false, revealedClues=1, qResults=[], scoreSaved=false, currentTab='today';
+let dailyTrades=[], qIndex=0, sessionPts=0, correctCount=0, answered=false, revealedClues=1, qResults=[], scoreSaved=false, currentTab='today', shuffledCorrectIdx=0;
 
 // ─────────────────────────────────────────────────────────────────
 // STREAK BADGE
@@ -1081,12 +1081,16 @@ function renderQuestion(){
   document.getElementById('q-counter').textContent=`${qIndex+1} / 5`;
   document.getElementById('q-text').textContent=t.question;
   renderSignal(t);
+  // Shuffle answers with a deterministic seed (same order each reload for the same day+question)
+  const pairs=t.answers.map((a,i)=>[a,i]);
+  const shuffled=seededShuffle(pairs, dateSeed(todayKey()+qIndex));
+  shuffledCorrectIdx=shuffled.findIndex(([,origIdx])=>origIdx===t.correct);
   const btns=document.getElementById('answers');
   btns.innerHTML='';
-  t.answers.forEach((a,i)=>{
+  shuffled.forEach(([answer],domIdx)=>{
     const b=document.createElement('button');
-    b.className='ans-btn'; b.textContent=a;
-    b.onclick=()=>selectAnswer(i);
+    b.className='ans-btn'; b.textContent=answer;
+    b.onclick=()=>selectAnswer(domIdx);
     btns.appendChild(b);
   });
   document.getElementById('feedback').className='feedback';
@@ -1100,7 +1104,7 @@ function renderQuestion(){
 function selectAnswer(chosen){
   if(answered) return;
   answered=true; stopTimer();
-  const t=dailyTrades[qIndex], correct=t.correct;
+  const t=dailyTrades[qIndex], correct=shuffledCorrectIdx;
   const btns=document.querySelectorAll('.ans-btn');
   btns.forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('reveal');});
   const isOk=chosen===correct;
@@ -1317,15 +1321,20 @@ async function renderLeaderboard(tab){
   el.innerHTML=`<div class="lb-empty">Loading...</div>`;
   let rows;
   if(tab==='alltime'){
-    // Fetch all rows and aggregate by call_sign for cumulative totals
-    const allRows=await sbFetch('ctb_scores?select=call_sign,score,day_streak');
+    // Fetch all rows; dedup by (call_sign,date) keeping max score, then sum across days
+    const allRows=await sbFetch('ctb_scores?select=call_sign,score,day_streak,puzzle_date');
     if(allRows){
-      const totals={};
+      const dayBest={};
       for(const r of allRows){
-        const k=(r.call_sign||'ANON').toUpperCase();
-        if(!totals[k]) totals[k]={call_sign:r.call_sign||'ANON',score:0,day_streak:0};
-        totals[k].score+=(r.score||0);
-        totals[k].day_streak=Math.max(totals[k].day_streak,r.day_streak||0);
+        const dk=`${(r.call_sign||'ANON').toUpperCase()}__${r.puzzle_date||''}`;
+        if(!dayBest[dk]||r.score>dayBest[dk].score) dayBest[dk]={call_sign:r.call_sign||'ANON',score:r.score||0,day_streak:r.day_streak||0};
+      }
+      const totals={};
+      for(const {call_sign,score,day_streak} of Object.values(dayBest)){
+        const k=call_sign.toUpperCase();
+        if(!totals[k]) totals[k]={call_sign,score:0,day_streak:0};
+        totals[k].score+=score;
+        totals[k].day_streak=Math.max(totals[k].day_streak,day_streak);
       }
       rows=Object.values(totals).sort((a,b)=>b.score-a.score).slice(0,10);
       setLS('ctb_lb_alltime',rows);
@@ -1333,8 +1342,16 @@ async function renderLeaderboard(tab){
       rows=getLS('ctb_lb_alltime',[]);
     }
   } else {
-    rows=await sbBoard(todayKey());
-    if(!rows) rows=getLS('ctb_lb_'+todayKey(),[]);
+    const todayRows=await sbBoard(todayKey());
+    if(todayRows){
+      // Dedup by call_sign keeping max score (re-posts from share bonuses)
+      const best={};
+      for(const r of todayRows){ const k=(r.call_sign||'ANON').toUpperCase(); if(!best[k]||r.score>best[k].score) best[k]=r; }
+      rows=Object.values(best).sort((a,b)=>b.score-a.score).slice(0,10);
+      setLS('ctb_lb_'+todayKey(),rows);
+    } else {
+      rows=getLS('ctb_lb_'+todayKey(),[]);
+    }
   }
   if(!rows||!rows.length){el.innerHTML=`<div class="lb-table"><div class="lb-empty">No scores yet — be first.</div></div>`;return;}
   const rc=['r1','r2','r3'];
