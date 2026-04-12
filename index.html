@@ -919,6 +919,7 @@ async function sbFetch(path,opts={}){
   }catch(e){ console.warn('Supabase fetch error',e); return null; }
 }
 async function sbPost(cs,score,cracked,streak){ return sbFetch('ctb_scores',{method:'POST',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({call_sign:cs,score,puzzle_date:todayKey(),day_streak:streak,cracked:cracked?1:0})}); }
+async function sbUpdate(cs,score){ return sbFetch(`ctb_scores?call_sign=eq.${encodeURIComponent(cs)}&puzzle_date=eq.${todayKey()}`,{method:'PATCH',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({score})}); }
 async function sbBoard(date){ return sbFetch(`ctb_scores?${date?`puzzle_date=eq.${date}&`:''}order=score.desc&limit=10`); }
 
 // ─────────────────────────────────────────────────────────────────
@@ -939,9 +940,15 @@ async function fetchStats(){
     }
   }catch{}
 }
-function renderNavDetective(){
+// Robust callsign reader — handles both JSON-encoded and legacy raw-string storage
+function getCallsign(){
   let name=getLS('ctb_callsign','');
   if(!name){try{name=localStorage.getItem('ctb_callsign')||'';}catch{}}
+  return name;
+}
+
+function renderNavDetective(){
+  const name=getCallsign();
   const el=document.getElementById('nav-detective');
   if(name&&el){ document.getElementById('nav-det-name').textContent=name; el.style.display=''; }
 }
@@ -1017,7 +1024,11 @@ let dailyTrades=[], qIndex=0, sessionPts=0, correctCount=0, answered=false, reve
 // STREAK BADGE
 // ─────────────────────────────────────────────────────────────────
 function renderStreakBadge(){
-  const n=getLS('ctb_streak',0), el=document.getElementById('streak-badge');
+  // Preview what streak would be today (without writing — touchStreak() commits on game finish)
+  const today=todayKey(), last=getLS('ctb_last',null);
+  let n=getLS('ctb_streak',0);
+  if(last!==today){ n=(last===yesterdayKey())?n+1:1; }
+  const el=document.getElementById('streak-badge');
   if(n>=3){el.textContent=`🔥 Day ${n}`;el.style.borderColor='rgba(251,191,36,.4)';el.style.color='var(--amber)';}
   else if(n>0){el.textContent=`Day ${n} streak`;}
   else{el.textContent='Day — streak';}
@@ -1173,9 +1184,18 @@ function showResults(fresh){
   document.getElementById('r-score').innerHTML=`${sessionPts}<span>points</span>`;
   document.getElementById('pts-val').textContent=sessionPts;
 
-  const savedName=getLS('ctb_callsign','');
-  if(savedName) document.getElementById('callsign').value=savedName;
-  if(scoreSaved){document.getElementById('submit-btn').disabled=true;document.getElementById('callsign').disabled=true;document.getElementById('submit-btn').textContent='Saved ✓';}
+  const savedName=getCallsign();
+  const submitWrap=document.querySelector('.submit-wrap');
+  if(savedName){
+    // Returning player: hide save form, auto-save silently
+    submitWrap.style.display='none';
+    if(!scoreSaved) autoSubmitScore(savedName);
+  } else {
+    // New player: show save form
+    submitWrap.style.display='';
+    document.getElementById('callsign').value='';
+    if(scoreSaved){document.getElementById('submit-btn').disabled=true;document.getElementById('callsign').disabled=true;document.getElementById('submit-btn').textContent='Saved ✓';}
+  }
   renderLeaderboard('today');
   startNextCountdown();
   updateBetaCallout();
@@ -1232,7 +1252,7 @@ async function submitWinEmail(){
   const btn=document.getElementById('win-submit-btn');
   btn.disabled=true; btn.textContent='Saving...';
 
-  const cs=getLS('ctb_callsign','');
+  const cs=getCallsign();
   await sbFetch('ctb_beta_emails',{
     method:'POST',
     headers:{...H(),'Prefer':'return=minimal'},
@@ -1265,7 +1285,7 @@ async function submitBetaEmail(){
   btn.disabled=true;btn.textContent='Saving...';
 
   // Save to Supabase
-  const cs=getLS('ctb_callsign','');
+  const cs=getCallsign();
   await sbFetch('ctb_beta_emails',{
     method:'POST',
     headers:{...H(),'Prefer':'return=minimal'},
@@ -1295,11 +1315,30 @@ async function submitBetaEmail(){
 async function renderLeaderboard(tab){
   const el=document.getElementById('lb-content');
   el.innerHTML=`<div class="lb-empty">Loading...</div>`;
-  let rows=tab==='today'?await sbBoard(todayKey()):await sbBoard(null);
-  if(!rows) rows=getLS('ctb_lb_'+(tab==='today'?todayKey():'alltime'),[]);
+  let rows;
+  if(tab==='alltime'){
+    // Fetch all rows and aggregate by call_sign for cumulative totals
+    const allRows=await sbFetch('ctb_scores?select=call_sign,score,day_streak');
+    if(allRows){
+      const totals={};
+      for(const r of allRows){
+        const k=(r.call_sign||'ANON').toUpperCase();
+        if(!totals[k]) totals[k]={call_sign:r.call_sign||'ANON',score:0,day_streak:0};
+        totals[k].score+=(r.score||0);
+        totals[k].day_streak=Math.max(totals[k].day_streak,r.day_streak||0);
+      }
+      rows=Object.values(totals).sort((a,b)=>b.score-a.score).slice(0,10);
+      setLS('ctb_lb_alltime',rows);
+    } else {
+      rows=getLS('ctb_lb_alltime',[]);
+    }
+  } else {
+    rows=await sbBoard(todayKey());
+    if(!rows) rows=getLS('ctb_lb_'+todayKey(),[]);
+  }
   if(!rows||!rows.length){el.innerHTML=`<div class="lb-table"><div class="lb-empty">No scores yet — be first.</div></div>`;return;}
   const rc=['r1','r2','r3'];
-  const myName=getLS('ctb_callsign','').toUpperCase();
+  const myName=getCallsign().toUpperCase();
   const head=`<div class="lb-head"><div>#</div><div>Detective</div><div style="text-align:center">Streak</div><div style="text-align:right">Pts</div></div>`;
   const rowsHtml=rows.slice(0,10).map((e,i)=>{
     const you=myName&&(e.call_sign||'').toUpperCase()===myName;
@@ -1313,6 +1352,25 @@ function switchTab(tab){
   document.getElementById('tab-today').className='lb-tab'+(tab==='today'?' on':'');
   document.getElementById('tab-alltime').className='lb-tab'+(tab==='alltime'?' on':'');
   renderLeaderboard(tab);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// AUTO-SUBMIT (returning players)
+// ─────────────────────────────────────────────────────────────────
+async function autoSubmitScore(name){
+  if(scoreSaved) return;
+  const scoreAtSave=sessionPts;
+  const streak=getLS('ctb_streak',1), cracked=correctCount===5;
+  const sbOk=SB_ON?(await sbPost(name,scoreAtSave,cracked,streak))!==null:true;
+  if(!sbOk){toast('Could not auto-save — check connection');return;}
+  window.umami&&umami.track('score_posted',{score:scoreAtSave,cracked,streak,auto:true});
+  scoreSaved=true;
+  const tk=todayKey();
+  const pd=getLS('ctb_played_'+tk,{}); pd.saved=true; setLS('ctb_played_'+tk,pd);
+  // If a share bonus was earned during the network round-trip, patch the row now
+  if(sessionPts!==scoreAtSave) sbUpdate(name,sessionPts);
+  renderLeaderboard(currentTab);
+  updateBetaCallout();
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1372,8 +1430,12 @@ function applyShareBonus(platform){
   const tk=todayKey();
   const pd=getLS('ctb_played_'+tk,{}); pd.score=sessionPts; setLS('ctb_played_'+tk,pd);
   toast(`+${SHARE_BONUS} pts share bonus! (${shared.length}/4)`);
-  // If already posted, re-enable to allow update
-  if(scoreSaved){
+  const savedName=getCallsign();
+  if(savedName&&scoreSaved){
+    // Returning player: silently patch DB with new score
+    sbUpdate(savedName,sessionPts);
+  } else if(!savedName&&scoreSaved){
+    // New player who manually saved: re-enable button to update
     scoreSaved=false;
     const btn=document.getElementById('submit-btn');
     const cs=document.getElementById('callsign');
