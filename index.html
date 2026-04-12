@@ -1414,7 +1414,7 @@ function copyToClipboard(text){
   else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}
 }
 
-function applyShareBonus(platform){
+async function applyShareBonus(platform){
   const key='ctb_shared_'+todayKey();
   const shared=getLS(key,[]);
   if(shared.includes(platform)) return; // already earned for this platform today
@@ -1432,8 +1432,9 @@ function applyShareBonus(platform){
   toast(`+${SHARE_BONUS} pts share bonus! (${shared.length}/4)`);
   const savedName=getCallsign();
   if(savedName&&scoreSaved){
-    // Returning player: silently patch DB with new score
-    sbUpdate(savedName,sessionPts);
+    // Returning player: patch DB then refresh leaderboard
+    await sbUpdate(savedName,sessionPts);
+    renderLeaderboard(currentTab);
   } else if(!savedName&&scoreSaved){
     // New player who manually saved: re-enable button to update
     scoreSaved=false;
