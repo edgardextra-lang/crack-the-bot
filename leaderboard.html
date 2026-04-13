@@ -430,7 +430,8 @@ async function sbFetch(path, opts = {}) {
 // UTILS
 // ─────────────────────────────────────────────────────────────────
 function todayKey() {
-  const d = new Date();
+  // EDT (UTC-4) — must match index.html
+  const d = new Date(Date.now() - 4 * 3600000);
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
 }
 
@@ -498,17 +499,25 @@ async function loadBoard() {
   document.getElementById('board-count').textContent = `${rows.length} player${rows.length !== 1 ? 's' : ''}`;
 }
 
-// Aggregate all-time: sum scores per call_sign
+// Aggregate all-time: dedup by (call_sign, puzzle_date) keeping max score, then sum across days
 function aggregateAllTime(rows) {
-  const map = {};
+  // Step 1: per (call_sign, date) keep only the best score row (handles re-posts from share bonuses)
+  const dayBest = {};
   for (const r of rows) {
-    if (!map[r.call_sign]) {
-      map[r.call_sign] = { call_sign: r.call_sign, score: 0, day_streak: r.day_streak || 0, cracked: 0, days_played: 0 };
+    const dk = `${(r.call_sign || 'ANON').toUpperCase()}__${r.puzzle_date || ''}`;
+    if (!dayBest[dk] || r.score > dayBest[dk].score) dayBest[dk] = r;
+  }
+  // Step 2: sum across days per call_sign
+  const map = {};
+  for (const r of Object.values(dayBest)) {
+    const k = (r.call_sign || 'ANON').toUpperCase();
+    if (!map[k]) {
+      map[k] = { call_sign: r.call_sign, score: 0, day_streak: r.day_streak || 0, cracked: 0, days_played: 0 };
     }
-    map[r.call_sign].score += r.score;
-    map[r.call_sign].cracked += (r.cracked || 0);
-    map[r.call_sign].days_played += 1;
-    if ((r.day_streak || 0) > map[r.call_sign].day_streak) map[r.call_sign].day_streak = r.day_streak;
+    map[k].score += r.score;
+    map[k].cracked += (r.cracked || 0);
+    map[k].days_played += 1;
+    if ((r.day_streak || 0) > map[k].day_streak) map[k].day_streak = r.day_streak;
   }
   return Object.values(map).sort((a, b) => b.score - a.score);
 }
@@ -599,11 +608,12 @@ function renderPodium(top3) {
 // YOUR RANK
 // ─────────────────────────────────────────────────────────────────
 function renderYourRank(rows) {
-  const myCS = getLS('ctb_callsign', null);
+  let myCS = getLS('ctb_callsign', null);
+  if (!myCS) { try { myCS = localStorage.getItem('ctb_callsign') || null; } catch {} }
   const el = document.getElementById('your-rank');
   if (!myCS) { el.style.display = 'none'; return; }
 
-  const idx = rows.findIndex(r => r.call_sign === myCS);
+  const idx = rows.findIndex(r => (r.call_sign||'').toUpperCase() === myCS.toUpperCase());
   if (idx === -1) { el.style.display = 'none'; return; }
 
   el.style.display = 'flex';
