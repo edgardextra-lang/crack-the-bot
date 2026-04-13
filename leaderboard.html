@@ -453,6 +453,7 @@ function fmtTime(d) {
 // ─────────────────────────────────────────────────────────────────
 let currentTab = 'today';
 let boardData = [];
+let _boardVersion = 0; // incremented on each loadBoard() call; stale responses are discarded
 
 // ─────────────────────────────────────────────────────────────────
 // TAB SWITCH
@@ -469,6 +470,7 @@ function switchTab(tab) {
 // LOAD BOARD
 // ─────────────────────────────────────────────────────────────────
 async function loadBoard() {
+  const myVersion = ++_boardVersion; // claim this request slot
   const today = todayKey();
   document.getElementById('board-date').textContent = fmtDate(today);
   document.getElementById('board-title').textContent =
@@ -496,6 +498,9 @@ async function loadBoard() {
       if (rows) rows = aggregateAllTime(rows);
     }
   }
+
+  // Discard if a newer loadBoard() started while we were fetching
+  if (myVersion !== _boardVersion) return;
 
   if (!rows) rows = [];
 
