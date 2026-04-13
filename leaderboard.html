@@ -494,13 +494,18 @@ async function loadBoard() {
       }
     } else {
       // All-time: aggregate by call_sign, sum scores
-      rows = await sbFetch(`ctb_scores?order=score.desc&limit=200`);
-      if (rows) rows = aggregateAllTime(rows);
+      const rawAll = await sbFetch(`ctb_scores?order=score.desc&limit=200`);
+      console.log('[CTB alltime] fetch returned', rawAll ? rawAll.length : 'null', 'rows', rawAll);
+      if (rawAll) {
+        rows = aggregateAllTime(rawAll);
+        console.log('[CTB alltime] after aggregateAllTime:', rows.length, 'players', rows.map(r=>r.call_sign+':'+r.score));
+      }
     }
   }
 
   // Discard if a newer loadBoard() started while we were fetching
-  if (myVersion !== _boardVersion) return;
+  console.log('[CTB loadBoard] myVersion='+myVersion+' _boardVersion='+_boardVersion+' tab='+currentTab+' rows='+(rows?rows.length:'null'));
+  if (myVersion !== _boardVersion) { console.log('[CTB loadBoard] DISCARDED stale response'); return; }
 
   if (!rows) rows = [];
 
