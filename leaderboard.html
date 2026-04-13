@@ -480,7 +480,16 @@ async function loadBoard() {
   let rows;
   if (SB_ON) {
     if (currentTab === 'today') {
-      rows = await sbFetch(`ctb_scores?puzzle_date=eq.${today}&order=score.desc&limit=50`);
+      const raw = await sbFetch(`ctb_scores?puzzle_date=eq.${today}&order=score.desc&limit=200`);
+      // Dedup by call_sign keeping only the highest score row per player
+      if (raw) {
+        const best = {};
+        for (const r of raw) {
+          const k = (r.call_sign || 'ANON').toUpperCase();
+          if (!best[k] || r.score > best[k].score) best[k] = r;
+        }
+        rows = Object.values(best).sort((a, b) => b.score - a.score);
+      }
     } else {
       // All-time: aggregate by call_sign, sum scores
       rows = await sbFetch(`ctb_scores?order=score.desc&limit=200`);
